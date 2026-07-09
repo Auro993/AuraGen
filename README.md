@@ -323,27 +323,10 @@ Next →
 
 ---
 
-# 📸 Screenshots
-
-### Home
-
-(Add Screenshot)
-
----
-
-### Dashboard
-
-(Add Screenshot)
-
----
 
 
 
-### Architecture
 
-(Add Screenshot)
-
----
 
 # 🚀 Installation
 
