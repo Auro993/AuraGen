@@ -1,45 +1,45 @@
-﻿# Dependencies
+# Dependencies - DO NOT COMMIT THESE
 node_modules/
-/.pnp
-.pnp.js
-.yarn/install-state.gz
-
-# Testing
-/coverage
-
-# Next.js
-/.next/
-/out/
-
-# Production
-/build
-
-# Misc
-.DS_Store
-*.pem
-
-# Debug
+package-lock.json
+yarn.lock
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Local env files
-.env*.local
+# Environment variables - DO NOT COMMIT THESE (contains passwords/keys)
 .env
+.env.local
+.env.production
+.env.development
+.env.*.local
 
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-# Backend specific
-backend/node_modules/
-backend/.env
+# Build files
+dist/
+build/
+*.log
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backend specific
+backend/node_modules/
+backend/.env
+
+# Frontend specific
+frontend/node_modules/
+frontend/.env
+frontend/dist/
+
+# Test files
+test-*.js
+*.test.js
+
+# Debug
+debug/
+*.log
