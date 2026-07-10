@@ -6,26 +6,44 @@ const jwt = require('jsonwebtoken');
 // Register
 router.post('/register', async (req, res) => {
   try {
+    console.log('📝 Registration request received:', req.body);
     const { name, email, password } = req.body;
     
+    // Validate input
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    }
+
     // Check if user exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
+      console.log('❌ User already exists:', email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
     // Create user
-    const user = new User({ name, email, password });
+    const user = new User({ 
+      name, 
+      email: email.toLowerCase(), 
+      password 
+    });
+    
     await user.save();
+    console.log('✅ User created:', user._id);
 
     // Generate token
     const token = jwt.sign(
       { userId: user._id, email: user.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'my_super_secret_jwt_key_2024',
       { expiresIn: '7d' }
     );
 
     res.status(201).json({
+      success: true,
       token,
       user: {
         id: user._id,
@@ -35,35 +53,55 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('❌ Registration error:', error);
+    console.error('Error details:', error.message);
+    res.status(500).json({ 
+      message: 'Registration failed', 
+      error: error.message 
+    });
   }
 });
 
 // Login
 router.post('/login', async (req, res) => {
   try {
+    console.log('📝 Login request received:', req.body.email);
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
+      console.log('❌ User not found:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Check password
-    const isValid = await user.comparePassword(password);
-    if (!isValid) {
+    // Check password using promise wrapper
+    const isMatch = await new Promise((resolve, reject) => {
+      user.comparePassword(password, (err, result) => {
+        if (err) reject(err);
+        resolve(result);
+      });
+    });
+
+    if (!isMatch) {
+      console.log('❌ Invalid password for:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Generate token
     const token = jwt.sign(
       { userId: user._id, email: user.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'my_super_secret_jwt_key_2024',
       { expiresIn: '7d' }
     );
 
+    console.log('✅ Login successful:', user._id);
     res.json({
+      success: true,
       token,
       user: {
         id: user._id,
@@ -73,7 +111,11 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('❌ Login error:', error);
+    res.status(500).json({ 
+      message: 'Login failed', 
+      error: error.message 
+    });
   }
 });
 

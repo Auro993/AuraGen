@@ -29,26 +29,43 @@ const userSchema = new mongoose.Schema({
     enum: ['starter', 'pro', 'enterprise'],
     default: 'starter'
   },
-  sessions: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Session'
-  }],
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+// Hash password before saving - SIMPLE VERSION
+userSchema.pre('save', function(next) {
+  // Only hash if password is modified
+  if (!this.isModified('password')) {
+    return next();
+  }
+  
+  // Use bcrypt with callbacks (not async/await)
+  const user = this;
+  bcrypt.genSalt(10, function(err, salt) {
+    if (err) {
+      return next(err);
+    }
+    bcrypt.hash(user.password, salt, function(err, hash) {
+      if (err) {
+        return next(err);
+      }
+      user.password = hash;
+      next();
+    });
+  });
 });
 
 // Compare password method
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.comparePassword = function(candidatePassword, cb) {
+  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
+    if (err) {
+      return cb(err);
+    }
+    cb(null, isMatch);
+  });
 };
 
 module.exports = mongoose.model('User', userSchema);
