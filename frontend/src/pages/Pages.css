@@ -1,0 +1,427 @@
+/* ===== COMMON PAGE STYLES ===== */
+.page {
+  min-height: 100vh;
+  background: #050816;
+}
+
+.page-hero {
+  padding: 140px 0 60px;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.05), rgba(79, 140, 255, 0.05));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.page-hero h1 {
+  font-size: 48px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.page-hero p {
+  font-size: 18px;
+  color: #9CA3AF;
+}
+
+/* ===== HOME PAGE ===== */
+.home-page {
+  min-height: 100vh;
+  background: #050816;
+}
+
+/* ===== FEATURES PAGE ===== */
+.features-page .features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin: 40px 0 60px;
+}
+
+/* ===== ARCHITECTURE PAGE ===== */
+.architecture-page .arch-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  background: rgba(17, 24, 39, 0.5);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 40px 0;
+}
+
+.arch-node {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  background: rgba(17, 24, 39, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  min-width: 200px;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.arch-node:hover {
+  border-color: #7C5CFF;
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(124, 92, 255, 0.2);
+}
+
+.arch-arrow {
+  color: #9CA3AF;
+  padding: 8px 0;
+  font-size: 20px;
+}
+
+/* ===== DEMO PAGE ===== */
+.demo-page .demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin: 40px 0;
+}
+
+.demo-card {
+  padding: 32px;
+  min-height: 400px;
+}
+
+.demo-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* ===== DASHBOARD PAGE ===== */
+.dashboard-page {
+  min-height: 100vh;
+  background: #050816;
+  padding: 100px 20px 40px;
+}
+
+.dashboard-page .dashboard-header {
+  margin-bottom: 32px;
+}
+
+.dashboard-page .dashboard-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.dashboard-page .dashboard-header p {
+  color: #9CA3AF;
+}
+
+/* ===== PRICING PAGE ===== */
+.pricing-page .pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin: 40px 0;
+}
+
+.pricing-card {
+  padding: 32px 28px;
+  text-align: center;
+  position: relative;
+}
+
+.pricing-card.popular {
+  border-color: #7C5CFF;
+  box-shadow: 0 0 40px rgba(124, 92, 255, 0.15);
+  transform: scale(1.02);
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 18px;
+  background: linear-gradient(135deg, #7C5CFF, #4F8CFF);
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.plan-price {
+  font-size: 48px;
+  font-weight: 800;
+  margin: 16px 0;
+}
+
+.plan-features {
+  list-style: none;
+  text-align: left;
+  margin: 24px 0;
+}
+
+.plan-features li {
+  padding: 8px 0;
+  color: #9CA3AF;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-features li::before {
+  content: '✓';
+  color: #22C55E;
+  font-weight: 700;
+}
+
+/* ===== ABOUT PAGE ===== */
+.about-page .about-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin: 40px 0;
+}
+
+.about-card {
+  padding: 32px;
+}
+
+.about-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #7C5CFF;
+}
+
+.about-card p {
+  color: #9CA3AF;
+  line-height: 1.8;
+}
+
+/* ===== CONTACT PAGE ===== */
+.contact-page .contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 32px;
+  margin: 40px 0;
+}
+
+.contact-form .form-group {
+  margin-bottom: 20px;
+}
+
+.contact-form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #9CA3AF;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: #7C5CFF;
+}
+
+/* ===== LOGIN PAGE ===== */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at center, rgba(124, 92, 255, 0.05), #050816);
+}
+
+.login-container {
+  width: 100%;
+  max-width: 440px;
+  padding: 20px;
+}
+
+.login-card {
+  padding: 48px 40px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 16px;
+}
+
+.login-header p {
+  color: #9CA3AF;
+}
+
+.login-form .form-group {
+  margin-bottom: 20px;
+}
+
+.login-form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #9CA3AF;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: #7C5CFF;
+}
+
+.login-submit {
+  width: 100%;
+  padding: 14px !important;
+  font-size: 16px !important;
+  justify-content: center;
+}
+
+.login-switch {
+  text-align: center;
+  color: #9CA3AF;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.login-switch span {
+  color: #7C5CFF;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.login-switch span:hover {
+  text-decoration: underline;
+}
+
+.login-divider {
+  position: relative;
+  text-align: center;
+  margin: 24px 0;
+}
+
+.login-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.login-divider span {
+  background: #111827;
+  padding: 0 16px;
+  color: #9CA3AF;
+  font-size: 13px;
+  position: relative;
+}
+
+.social-login {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.social-btn {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .features-page .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .pricing-page .pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .page-hero h1 {
+    font-size: 32px;
+  }
+  
+  .page-hero p {
+    font-size: 15px;
+  }
+  
+  .demo-page .demo-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .about-page .about-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .contact-page .contact-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .pricing-page .pricing-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 40px auto;
+  }
+  
+  .pricing-card.popular {
+    transform: scale(1);
+  }
+  
+  .login-card {
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .features-page .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .social-login {
+    grid-template-columns: 1fr;
+  }
+  
+  .login-card {
+    padding: 24px 16px;
+  }
+}

@@ -6,10 +6,9 @@ const jwt = require('jsonwebtoken');
 // Register
 router.post('/register', async (req, res) => {
   try {
-    console.log('📝 Registration request received:', req.body);
+    console.log('📝 Registration request:', req.body);
     const { name, email, password } = req.body;
     
-    // Validate input
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -18,14 +17,11 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
-    // Check if user exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      console.log('❌ User already exists:', email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create user
     const user = new User({ 
       name, 
       email: email.toLowerCase(), 
@@ -35,7 +31,6 @@ router.post('/register', async (req, res) => {
     await user.save();
     console.log('✅ User created:', user._id);
 
-    // Generate token
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET || 'my_super_secret_jwt_key_2024',
@@ -54,7 +49,6 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Registration error:', error);
-    console.error('Error details:', error.message);
     res.status(500).json({ 
       message: 'Registration failed', 
       error: error.message 
@@ -65,34 +59,30 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    console.log('📝 Login request received:', req.body.email);
+    console.log('📝 Login request:', req.body.email);
     const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Find user
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       console.log('❌ User not found:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Check password using promise wrapper
-    const isMatch = await new Promise((resolve, reject) => {
-      user.comparePassword(password, (err, result) => {
-        if (err) reject(err);
-        resolve(result);
-      });
-    });
+    console.log('👤 User found:', user.email);
+    console.log('🔑 Comparing password...');
 
+    // Compare password using the fixed method
+    const isMatch = await user.comparePassword(password);
+    
     if (!isMatch) {
       console.log('❌ Invalid password for:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate token
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET || 'my_super_secret_jwt_key_2024',

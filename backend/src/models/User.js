@@ -35,36 +35,34 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Hash password before saving - SIMPLE VERSION
+// Hash password before saving
 userSchema.pre('save', function(next) {
-  // Only hash if password is modified
-  if (!this.isModified('password')) {
+  const user = this;
+  
+  if (!user.isModified('password')) {
     return next();
   }
   
-  // Use bcrypt with callbacks (not async/await)
-  const user = this;
   bcrypt.genSalt(10, function(err, salt) {
-    if (err) {
-      return next(err);
-    }
+    if (err) return next(err);
+    
     bcrypt.hash(user.password, salt, function(err, hash) {
-      if (err) {
-        return next(err);
-      }
+      if (err) return next(err);
       user.password = hash;
+      console.log('🔐 Password hashed successfully');
       next();
     });
   });
 });
 
-// Compare password method
-userSchema.methods.comparePassword = function(candidatePassword, cb) {
-  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-    if (err) {
-      return cb(err);
-    }
-    cb(null, isMatch);
+// Compare password method - FIXED VERSION
+userSchema.methods.comparePassword = function(candidatePassword) {
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
+      if (err) return reject(err);
+      console.log('🔑 Password comparison result:', isMatch);
+      resolve(isMatch);
+    });
   });
 };
 
