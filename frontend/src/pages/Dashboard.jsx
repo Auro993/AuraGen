@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [frictionScore, setFrictionScore] = useState(72.4)
 
+  // Check authentication
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) {
@@ -23,6 +24,7 @@ const Dashboard = () => {
     }
   }, [navigate])
 
+  // Simulate live friction updates
   useEffect(() => {
     const interval = setInterval(() => {
       const newScore = (Math.random() * 40 + 50).toFixed(1)
@@ -31,14 +33,43 @@ const Dashboard = () => {
     return () => clearInterval(interval)
   }, [])
 
+  // Stats data
   const stats = [
-    { icon: '👤', label: 'Active Users', value: '1,248', change: '+12%', positive: true },
-    { icon: '📊', label: 'Avg. Friction Score', value: `${frictionScore}%`, change: '+8.5%', positive: false },
-    { icon: '🎨', label: 'Generated UIs', value: '320', change: '+10.5%', positive: true },
-    { icon: '✅', label: 'Success Rate', value: '89.6%', change: '+10%', positive: true }
+    { 
+      icon: '👤', 
+      label: 'Active Users', 
+      value: '1,248', 
+      change: '+12%', 
+      positive: true 
+    },
+    { 
+      icon: '📊', 
+      label: 'Avg. Friction Score', 
+      value: `${frictionScore}%`, 
+      change: '+8.5%', 
+      positive: false 
+    },
+    { 
+      icon: '🎨', 
+      label: 'Generated UIs', 
+      value: '320', 
+      change: '+10.5%', 
+      positive: true 
+    },
+    { 
+      icon: '✅', 
+      label: 'Success Rate', 
+      value: '89.6%', 
+      change: '+10%', 
+      positive: true 
+    }
   ]
 
-  const chartData = [45, 52, 38, 65, 72, 58, 43, 55, 68, 60, 75, 80]
+  // Updated chart data for Chart.js
+  const chartData = {
+    labels: ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
+    values: [65, 82, 68, 61, 86, 66, 71]
+  }
 
   const heatmapData = [
     { intensity: 0.8 }, { intensity: 0.6 }, { intensity: 0.4 }, { intensity: 0.2 },
@@ -76,6 +107,7 @@ const Dashboard = () => {
       case 'dashboard':
         return (
           <>
+            {/* Dashboard Header */}
             <div className="dashboard-header">
               <div>
                 <h1 className="dashboard-title">Dashboard</h1>
@@ -87,25 +119,32 @@ const Dashboard = () => {
               </div>
             </div>
 
+            {/* Stats Cards */}
             <div className="stats-grid">
               {stats.map((stat, index) => (
                 <StatCard key={index} {...stat} />
               ))}
             </div>
 
+            {/* Charts Row - Pass chartData correctly */}
             <div className="dashboard-two-col">
               <FrictionChart data={chartData} />
               <HeatMap data={heatmapData} />
             </div>
 
+            {/* AI Status */}
             <AIStatus />
+
+            {/* Session Table */}
             <SessionTable sessions={sessions} />
 
+            {/* Bottom Grid - Timeline & Logs */}
             <div className="dashboard-bottom-grid">
               <Timeline events={timelineEvents} />
               <Logs logs={logs} />
             </div>
 
+            {/* Footer */}
             <footer className="dashboard-footer">
               <span>AuraGen v1.0</span>
               <span>© 2026 AuraGen. All rights reserved.</span>
@@ -126,7 +165,10 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-page">
+      {/* Sidebar */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      {/* Main Content */}
       <main className="dashboard-main">
         <Topbar />
         {renderContent()}

@@ -16,12 +16,14 @@ const Topbar = () => {
         <button 
           className="topbar-icon" 
           onClick={() => setShowNotifications(!showNotifications)}
+          title="Notifications"
         >
           🔔
         </button>
         <button 
           className="topbar-icon" 
           onClick={() => setIsDarkMode(!isDarkMode)}
+          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {isDarkMode ? '🌙' : '☀️'}
         </button>

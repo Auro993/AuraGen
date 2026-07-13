@@ -6,6 +6,7 @@ import Features from './pages/Features'
 import Architecture from './pages/Architecture'
 import Demo from './pages/Demo'
 import Dashboard from './pages/Dashboard'
+import Analytics from './pages/Analytics'
 import Pricing from './pages/Pricing'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -54,6 +55,7 @@ function App() {
         <Route path="/architecture" element={<Architecture />} />
         <Route path="/demo" element={<Demo />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
