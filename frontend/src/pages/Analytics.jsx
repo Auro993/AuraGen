@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Dashboard/Sidebar'
-import Topbar from '../components/Dashboard/Topbar'
-import BehaviourChart from '../components/Dashboard/BehaviourChart'
 import { Line } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -32,7 +30,7 @@ ChartJS.register(
 const Analytics = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('analytics')
-  const [frictionScore, setFrictionScore] = useState(63.5)
+  const [frictionScore, setFrictionScore] = useState(87)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -43,8 +41,8 @@ const Analytics = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const newScore = (Math.random() * 40 + 50).toFixed(1)
-      setFrictionScore(parseFloat(newScore))
+      const newScore = (Math.random() * 40 + 60).toFixed(0)
+      setFrictionScore(parseInt(newScore))
     }, 5000)
     return () => clearInterval(interval)
   }, [])
@@ -175,8 +173,7 @@ const Analytics = () => {
     <div className="analytics-page">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <main className="analytics-main">
-        <Topbar />
-
+        {/* Header */}
         <div className="analytics-header">
           <div>
             <h1 className="analytics-title">Analytics</h1>
@@ -189,7 +186,7 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Overview Cards */}
+        {/* Stats Cards */}
         <div className="analytics-stats-grid">
           {overviewStats.map((stat, index) => (
             <div key={index} className="analytics-stat-card glass-card">
@@ -220,78 +217,9 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Two Column: Behaviour Distribution & Heatmap */}
+        {/* Two Column: Friction Sources & AI Performance */}
         <div className="analytics-two-col">
-          {/* Behaviour Distribution - Using Doughnut Chart */}
-          <BehaviourChart />
-          
-          {/* Heatmap */}
-          <div className="analytics-heatmap-card glass-card">
-            <h3 className="analytics-heatmap-title">Click Heatmap</h3>
-            <div className="analytics-heatmap-grid">
-              {Array.from({ length: 8 }).map((_, row) => (
-                <div key={row} className="analytics-heatmap-row">
-                  {Array.from({ length: 12 }).map((_, col) => {
-                    const intensity = Math.random()
-                    return (
-                      <div 
-                        key={col} 
-                        className="analytics-heatmap-cell"
-                        style={{ 
-                          opacity: intensity,
-                          background: intensity > 0.7 ? '#EF4444' : intensity > 0.4 ? '#F59E0B' : '#22C55E'
-                        }}
-                      ></div>
-                    )
-                  })}
-                </div>
-              ))}
-            </div>
-            <div className="analytics-heatmap-stats">
-              <div className="analytics-heatmap-stat">
-                <span>Total Requests</span>
-                <strong>520</strong>
-              </div>
-              <div className="analytics-heatmap-stat">
-                <span>Avg. Response Time</span>
-                <strong>1.8 sec</strong>
-              </div>
-              <div className="analytics-heatmap-stat">
-                <span>Success Rate</span>
-                <strong>98%</strong>
-              </div>
-              <div className="analytics-heatmap-stat">
-                <span>Failure Rate</span>
-                <strong>2%</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* AI Transformation Statistics */}
-        <div className="analytics-ai-stats glass-card">
-          <h3 className="analytics-ai-stats-title">AI Transformation Statistics</h3>
-          <div className="analytics-ai-stats-grid">
-            <div className="analytics-ai-stat-item">
-              <span className="analytics-ai-stat-icon">🎨</span>
-              <span className="analytics-ai-stat-value">45</span>
-              <span className="analytics-ai-stat-label">UI Generated Today</span>
-            </div>
-            <div className="analytics-ai-stat-item">
-              <span className="analytics-ai-stat-icon">⏱️</span>
-              <span className="analytics-ai-stat-value">1.4 sec</span>
-              <span className="analytics-ai-stat-label">Avg. Generation Time</span>
-            </div>
-            <div className="analytics-ai-stat-item">
-              <span className="analytics-ai-stat-icon">✅</span>
-              <span className="analytics-ai-stat-value">93%</span>
-              <span className="analytics-ai-stat-label">Successful Transformations</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Friction Sources & AI Performance */}
-        <div className="analytics-two-col">
+          {/* Friction Sources */}
           <div className="analytics-friction-sources glass-card">
             <h3 className="analytics-friction-title">Friction Sources</h3>
             {frictionSources.map((source, index) => (
@@ -311,6 +239,7 @@ const Analytics = () => {
             ))}
           </div>
 
+          {/* AI Performance */}
           <div className="analytics-ai-performance glass-card">
             <h3 className="analytics-ai-performance-title">AI Performance</h3>
             <div className="analytics-ai-performance-grid">
@@ -334,6 +263,28 @@ const Analytics = () => {
                 <span className="analytics-ai-performance-value">{aiPerformance.failureRate}%</span>
                 <span className="analytics-ai-performance-label">Failures</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* AI Transformation Statistics */}
+        <div className="analytics-ai-stats glass-card">
+          <h3 className="analytics-ai-stats-title">AI Transformation Statistics</h3>
+          <div className="analytics-ai-stats-grid">
+            <div className="analytics-ai-stat-item">
+              <span className="analytics-ai-stat-icon">🎨</span>
+              <span className="analytics-ai-stat-value">45</span>
+              <span className="analytics-ai-stat-label">UI Generated Today</span>
+            </div>
+            <div className="analytics-ai-stat-item">
+              <span className="analytics-ai-stat-icon">⏱️</span>
+              <span className="analytics-ai-stat-value">1.4 sec</span>
+              <span className="analytics-ai-stat-label">Avg. Generation Time</span>
+            </div>
+            <div className="analytics-ai-stat-item">
+              <span className="analytics-ai-stat-icon">✅</span>
+              <span className="analytics-ai-stat-value">93%</span>
+              <span className="analytics-ai-stat-label">Successful Transformations</span>
             </div>
           </div>
         </div>

@@ -16,6 +16,9 @@ import './styles/global.css'
 import './styles/variables.css'
 import './styles/animations.css'
 import './styles/utilities.css'
+import UserSessions from './pages/UserSessions'
+import Behaviour from './pages/Behaviour'
+import FrictionEngine from './pages/FrictionEngine'
 
 function App() {
   return (
@@ -61,6 +64,9 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/user-sessions" element={<UserSessions />} />
+        <Route path="/behavior" element={<Behaviour />} />
+        <Route path="/friction" element={<FrictionEngine />} />
       </Routes>
     </>
   )

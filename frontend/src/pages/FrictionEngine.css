@@ -1,0 +1,516 @@
+/* Friction Engine Page */
+.friction-page {
+  display: flex;
+  min-height: 100vh;
+  background: #050816;
+}
+
+.friction-main {
+  margin-left: 250px;
+  flex: 1;
+  padding: 32px 40px 40px;
+  min-height: 100vh;
+}
+
+/* Header */
+.friction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.friction-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+}
+
+.friction-subtitle {
+  color: #9CA3AF;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.friction-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.friction-actions .btn-primary,
+.friction-actions .btn-secondary {
+  padding: 8px 20px !important;
+  font-size: 13px !important;
+}
+
+/* KPI Cards */
+.friction-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.friction-kpi-card {
+  padding: 20px 24px;
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.friction-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(124, 92, 255, 0.3);
+  box-shadow: 0 8px 30px rgba(124, 92, 255, 0.1);
+}
+
+.friction-kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.friction-kpi-icon {
+  font-size: 24px;
+}
+
+.friction-kpi-change {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+.friction-kpi-change.positive {
+  color: #22C55E;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.friction-kpi-change.negative {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.friction-kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  display: block;
+}
+
+.friction-kpi-label {
+  font-size: 14px;
+  color: #9CA3AF;
+}
+
+/* Two Column */
+.friction-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+/* Cards */
+.friction-trend-card,
+.friction-meter-card,
+.friction-factors-card,
+.friction-heatmap-card,
+.friction-events-card,
+.friction-recommendation-card {
+  padding: 24px;
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+}
+
+.friction-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 16px;
+}
+
+/* Trend Chart */
+.friction-chart-wrapper {
+  width: 100%;
+  height: 200px;
+}
+
+/* Gauge Meter */
+.friction-meter-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.friction-gauge {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+}
+
+.friction-gauge-arc {
+  position: relative;
+  width: 100%;
+}
+
+.friction-gauge-arc svg {
+  width: 100%;
+  height: auto;
+}
+
+.friction-gauge-center {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.friction-gauge-value {
+  font-size: 48px;
+  font-weight: 700;
+  color: white;
+  display: block;
+}
+
+.friction-gauge-label {
+  font-size: 16px;
+  color: #9CA3AF;
+}
+
+.friction-level-indicators {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  margin-top: 8px;
+}
+
+.friction-level {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.friction-level.low { color: #22C55E; }
+.friction-level.medium { color: #F59E0B; }
+.friction-level.high { color: #EF4444; }
+
+.friction-status {
+  text-align: center;
+}
+
+.friction-status-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  display: block;
+}
+
+.friction-status-message {
+  font-size: 14px;
+  color: #9CA3AF;
+  margin-top: 4px;
+}
+
+/* Friction Factors */
+.friction-factor-item {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.friction-factor-item:last-child {
+  border-bottom: none;
+}
+
+.friction-factor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.friction-factor-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
+.friction-factor-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.friction-factor-bar-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+
+.friction-factor-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.8s ease;
+}
+
+.friction-factor-detail {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+/* Heatmap */
+.friction-heatmap-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.friction-heatmap-row {
+  display: flex;
+  gap: 3px;
+}
+
+.friction-heatmap-cell {
+  flex: 1;
+  aspect-ratio: 1;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.friction-heatmap-cell:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(124, 92, 255, 0.3);
+}
+
+.friction-heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.friction-heatmap-gradient {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  width: 120px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.friction-heatmap-gradient span {
+  flex: 1;
+}
+
+.friction-heatmap-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.friction-heatmap-stat {
+  text-align: center;
+}
+
+.friction-heatmap-stat span {
+  display: block;
+  font-size: 11px;
+  color: #6B7280;
+}
+
+.friction-heatmap-stat strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+}
+
+/* Events Table */
+.friction-events-card {
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.friction-events-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.friction-events-table th {
+  text-align: left;
+  padding: 10px 14px;
+  color: #9CA3AF;
+  font-size: 12px;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.friction-events-table td {
+  padding: 10px 14px;
+  color: white;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.friction-event-score {
+  font-weight: 600;
+}
+
+.friction-event-severity {
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* AI Recommendation */
+.friction-recommendation-card {
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.08), rgba(79, 140, 255, 0.04));
+  border: 1px solid rgba(124, 92, 255, 0.15);
+}
+
+.friction-recommendation-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.friction-recommendation-icon {
+  font-size: 24px;
+}
+
+.friction-recommendation-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.friction-recommendation-message {
+  color: #9CA3AF;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.friction-recommendation-action {
+  padding: 12px 16px;
+  background: rgba(124, 92, 255, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid #7C5CFF;
+  margin-bottom: 16px;
+}
+
+.friction-recommendation-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7C5CFF;
+  margin-right: 8px;
+}
+
+.friction-recommendation-text {
+  font-size: 14px;
+  color: white;
+}
+
+.friction-generate-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 14px !important;
+  font-size: 16px !important;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .friction-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .friction-two-col {
+    grid-template-columns: 1fr;
+  }
+  
+  .friction-heatmap-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .friction-main {
+    margin-left: 60px;
+    padding: 16px;
+  }
+  
+  .friction-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .friction-title {
+    font-size: 24px;
+  }
+  
+  .friction-actions {
+    width: 100%;
+  }
+  
+  .friction-actions button {
+    flex: 1;
+  }
+  
+  .friction-chart-wrapper {
+    height: 160px;
+  }
+  
+  .friction-gauge-value {
+    font-size: 36px;
+  }
+  
+  .friction-heatmap-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .friction-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .friction-header {
+    flex-direction: column;
+  }
+  
+  .friction-gauge-value {
+    font-size: 28px;
+  }
+  
+  .friction-heatmap-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .friction-events-table {
+    font-size: 12px;
+  }
+  
+  .friction-events-table th,
+  .friction-events-table td {
+    padding: 6px 8px;
+  }
+}
