@@ -19,6 +19,11 @@ import './styles/utilities.css'
 import UserSessions from './pages/UserSessions'
 import Behaviour from './pages/Behaviour'
 import FrictionEngine from './pages/FrictionEngine'
+import AIGenerator from './pages/AIGenerator'
+import GeneratedUI from './pages/GeneratedUI'
+import History from './pages/History'
+import Settings from './pages/Settings'
+import HelpDocs from './pages/HelpDocs'
 
 function App() {
   return (
@@ -67,6 +72,11 @@ function App() {
         <Route path="/user-sessions" element={<UserSessions />} />
         <Route path="/behavior" element={<Behaviour />} />
         <Route path="/friction" element={<FrictionEngine />} />
+        <Route path="/ai" element={<AIGenerator />} />
+        <Route path="/generated" element={<GeneratedUI />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/docs" element={<HelpDocs />} />
       </Routes>
     </>
   )

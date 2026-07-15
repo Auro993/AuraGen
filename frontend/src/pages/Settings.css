@@ -1,0 +1,503 @@
+/* Settings Page */
+.settings-page {
+  display: flex;
+  min-height: 100vh;
+  background: #050816;
+}
+
+.settings-main {
+  margin-left: 250px;
+  flex: 1;
+  padding: 32px 40px 40px;
+  min-height: 100vh;
+}
+
+/* Header */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.settings-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+}
+
+.settings-subtitle {
+  color: #9CA3AF;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.settings-header .btn-secondary {
+  padding: 8px 18px !important;
+  font-size: 13px !important;
+}
+
+/* Tabs */
+.settings-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: rgba(17, 24, 39, 0.5);
+  border-radius: 12px;
+  padding: 4px;
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+
+.settings-tab {
+  padding: 8px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #9CA3AF;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.settings-tab:hover {
+  color: white;
+}
+
+.settings-tab.active {
+  background: rgba(124, 92, 255, 0.2);
+  color: #7C5CFF;
+}
+
+/* Content */
+.settings-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.settings-general,
+.settings-ai,
+.settings-notifications,
+.settings-privacy,
+.settings-integrations,
+.settings-team {
+  padding: 24px;
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+}
+
+.settings-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 20px;
+}
+
+/* Form */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9CA3AF;
+}
+
+.settings-input,
+.settings-select {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.settings-input:focus,
+.settings-select:focus {
+  border-color: #7C5CFF;
+}
+
+.settings-select option {
+  background: #111827;
+}
+
+/* Theme */
+.settings-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.settings-theme-card {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-theme-card:hover {
+  border-color: rgba(124, 92, 255, 0.3);
+}
+
+.settings-theme-card.active {
+  border-color: #7C5CFF;
+  background: rgba(124, 92, 255, 0.05);
+}
+
+.settings-theme-icon {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.settings-theme-label {
+  font-size: 13px;
+  color: #9CA3AF;
+}
+
+.settings-theme-card.active .settings-theme-label {
+  color: white;
+}
+
+/* Mode Buttons */
+.settings-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.settings-mode-btn {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  color: #9CA3AF;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-mode-btn:hover {
+  border-color: rgba(124, 92, 255, 0.3);
+  color: white;
+}
+
+.settings-mode-btn.active {
+  background: rgba(124, 92, 255, 0.2);
+  border-color: #7C5CFF;
+  color: #7C5CFF;
+}
+
+/* Toggles */
+.settings-toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-toggle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.settings-toggle-item span {
+  font-size: 14px;
+  color: white;
+}
+
+.settings-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.settings-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #2D3553;
+  transition: 0.3s ease;
+  border-radius: 26px;
+}
+
+.settings-slider::before {
+  content: '';
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  transition: 0.3s ease;
+  border-radius: 50%;
+}
+
+.settings-switch input:checked + .settings-slider {
+  background: #7C5CFF;
+}
+
+.settings-switch input:checked + .settings-slider::before {
+  transform: translateX(22px);
+}
+
+/* Save Button */
+.settings-save {
+  margin-top: 8px;
+  padding: 12px !important;
+  font-size: 15px !important;
+  justify-content: center;
+}
+
+/* Privacy List */
+.settings-privacy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-privacy-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-privacy-item:hover {
+  background: rgba(124, 92, 255, 0.05);
+}
+
+.settings-privacy-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
+.settings-privacy-desc {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.settings-privacy-arrow {
+  background: none;
+  border: none;
+  color: #6B7280;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Integrations */
+.settings-integrations-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.settings-integration-card {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-integration-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-integration-icon {
+  font-size: 20px;
+}
+
+.settings-integration-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
+.settings-integration-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.05);
+  color: #9CA3AF;
+  cursor: pointer;
+}
+
+.settings-integration-status.connected {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22C55E;
+}
+
+/* Team */
+.settings-team-avatars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.settings-team-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.settings-team-avatar span:first-child {
+  font-size: 32px;
+}
+
+.settings-team-name {
+  font-size: 11px;
+  color: #9CA3AF;
+}
+
+.settings-team-role {
+  font-size: 10px;
+  color: #6B7280;
+}
+
+.settings-team-add {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(124, 92, 255, 0.15);
+  border: 2px dashed rgba(124, 92, 255, 0.3);
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 600;
+  color: #7C5CFF;
+  cursor: pointer;
+}
+
+.settings-team-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.settings-manage-team {
+  width: 100%;
+  justify-content: center;
+  padding: 10px !important;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .settings-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .settings-integrations-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .settings-main {
+    margin-left: 60px;
+    padding: 16px;
+  }
+  
+  .settings-title {
+    font-size: 24px;
+  }
+  
+  .settings-header {
+    flex-direction: column;
+  }
+  
+  .settings-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .settings-tab {
+    font-size: 13px;
+    padding: 6px 14px;
+  }
+  
+  .settings-theme-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .settings-mode-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .settings-integrations-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .settings-team-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-theme-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .settings-mode-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .settings-tab {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  
+  .settings-team-avatar span:first-child {
+    font-size: 24px;
+  }
+}

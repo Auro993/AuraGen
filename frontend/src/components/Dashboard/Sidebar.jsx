@@ -10,11 +10,12 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { id: 'user-sessions', label: 'User Sessions', icon: '👥', path: '/user-sessions' },
     { id: 'behavior', label: 'Behaviour', icon: '🖱️', path: '/behavior' },
     { id: 'friction', label: 'Friction Engine', icon: '⚡', path: '/friction' },
-    { id: 'ai', label: 'AI Generator', icon: '🤖', path: '/ai' },
+   { id: 'ai', label: 'AI Generator', icon: '🤖', path: '/ai' },
     { id: 'generated', label: 'Generated UI', icon: '🧩', path: '/generated' },
     { id: 'history', label: 'History', icon: '📜', path: '/history' },
     { id: 'settings', label: 'Settings', icon: '⚙️', path: '/settings' },
     { id: 'docs', label: 'Help & Docs', icon: '📄', path: '/docs' },
+    
   ]
 
   const handleLogout = () => {
