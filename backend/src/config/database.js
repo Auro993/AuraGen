@@ -5,7 +5,7 @@ const connectDB = async () => {
     const uri = process.env.MONGODB_URI;
     
     if (!uri) {
-      console.log('⚠️  No MongoDB URI found. Running without database.');
+      console.log('⚠️ No MongoDB URI found. Running without database.');
       return;
     }
 
@@ -18,7 +18,7 @@ const connectDB = async () => {
     console.log(`📊 Database: ${mongoose.connection.db.databaseName}`);
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
-    console.log('⚠️  Continuing without MongoDB...');
+    console.log('⚠️ Continuing without MongoDB...');
   }
 };
 

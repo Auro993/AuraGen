@@ -72,10 +72,6 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    console.log('👤 User found:', user.email);
-    console.log('🔑 Comparing password...');
-
-    // Compare password using the fixed method
     const isMatch = await user.comparePassword(password);
     
     if (!isMatch) {

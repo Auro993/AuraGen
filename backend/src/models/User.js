@@ -29,13 +29,19 @@ const userSchema = new mongoose.Schema({
     enum: ['starter', 'pro', 'enterprise'],
     default: 'starter'
   },
+  sessions: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Session'
+  }],
   createdAt: {
     type: Date,
     default: Date.now
   }
+}, {
+  timestamps: true
 });
 
-// Hash password before saving
+// Hash password before saving - NO CALLBACKS, JUST ASSIGN
 userSchema.pre('save', function(next) {
   const user = this;
   
@@ -43,27 +49,20 @@ userSchema.pre('save', function(next) {
     return next();
   }
   
-  bcrypt.genSalt(10, function(err, salt) {
-    if (err) return next(err);
-    
-    bcrypt.hash(user.password, salt, function(err, hash) {
-      if (err) return next(err);
-      user.password = hash;
-      console.log('🔐 Password hashed successfully');
-      next();
-    });
-  });
+  // Use sync version for simplicity
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    user.password = bcrypt.hashSync(user.password, salt);
+    console.log('🔐 Password hashed successfully');
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
 
-// Compare password method - FIXED VERSION
+// Compare password method
 userSchema.methods.comparePassword = function(candidatePassword) {
-  return new Promise((resolve, reject) => {
-    bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
-      if (err) return reject(err);
-      console.log('🔑 Password comparison result:', isMatch);
-      resolve(isMatch);
-    });
-  });
+  return bcrypt.compareSync(candidatePassword, this.password);
 };
 
 module.exports = mongoose.model('User', userSchema);
