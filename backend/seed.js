@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 const User = require('./src/models/User');
@@ -23,17 +22,13 @@ async function seedDatabase() {
     await BehaviourLog.deleteMany({});
     console.log('✅ Cleared existing data');
 
-    // Create test user - FIXED: Let the model handle hashing
+    // Create test user
     console.log('👤 Creating test user...');
-    
     const user = new User({
       name: 'Test User',
       email: 'test@example.com',
-      password: 'password123', // Model will hash this
-      role: 'user',
-      plan: 'pro'
+      password: 'password123'
     });
-    
     await user.save();
     console.log('✅ Test user created:', user.email);
 
@@ -73,8 +68,7 @@ async function seedDatabase() {
           duration: Math.floor(Math.random() * 60)
         })),
         device: ['desktop', 'mobile', 'tablet'][Math.floor(Math.random() * 3)],
-        browser: ['Chrome', 'Firefox', 'Safari', 'Edge'][Math.floor(Math.random() * 4)],
-        ipAddress: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`
+        browser: ['Chrome', 'Firefox', 'Safari', 'Edge'][Math.floor(Math.random() * 4)]
       });
       
       await session.save();
@@ -173,7 +167,6 @@ async function seedDatabase() {
     process.exit(0);
   } catch (error) {
     console.error('❌ Error seeding database:', error);
-    console.error('Stack:', error.stack);
     process.exit(1);
   }
 }

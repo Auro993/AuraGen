@@ -8,6 +8,7 @@ const morgan = require('morgan');
 const compression = require('compression');
 const http = require('http');
 const { Server } = require('socket.io');
+const mongoose = require('mongoose');
 
 console.log('✅ Dependencies loaded');
 
@@ -98,6 +99,22 @@ try {
   console.error('❌ Analytics routes error:', error.message);
 }
 
+// Behaviour routes
+try {
+  app.use('/api/behaviour', require('./routes/behaviour'));
+  console.log('✅ Behaviour routes loaded');
+} catch (error) {
+  console.error('❌ Behaviour routes error:', error.message);
+}
+
+// Friction routes
+try {
+  app.use('/api/friction', require('./routes/friction'));
+  console.log('✅ Friction routes loaded');
+} catch (error) {
+  console.error('❌ Friction routes error:', error.message);
+}
+
 // UI routes
 try {
   app.use('/api/ui', require('./routes/ui'));
@@ -186,6 +203,3 @@ process.on('SIGINT', () => {
     process.exit(0);
   });
 });
-
-// Add mongoose reference for health check
-const mongoose = require('mongoose');
