@@ -11,6 +11,7 @@ import SessionTable from '../components/Dashboard/SessionTable'
 import Timeline from '../components/Dashboard/Timeline'
 import Logs from '../components/Dashboard/Logs'
 import api from '../services/api'
+import { connectSocket, onFrictionUpdate, joinSession, startFrictionUpdates, onWelcome, onUIGenerated } from '../services/socket'
 import '../components/Dashboard/Dashboard.css'
 
 const Dashboard = () => {
@@ -23,6 +24,8 @@ const Dashboard = () => {
   const [frictionScore, setFrictionScore] = useState(72.4)
   const [timelineEvents, setTimelineEvents] = useState([])
   const [logs, setLogs] = useState([])
+  const [wsConnected, setWsConnected] = useState(false)
+  const [backendError, setBackendError] = useState(false)
 
   // Check authentication
   useEffect(() => {
@@ -32,29 +35,52 @@ const Dashboard = () => {
     }
   }, [navigate])
 
-  // Fetch dashboard data from API
+  // Fetch dashboard data and setup WebSocket
   useEffect(() => {
     fetchDashboardData()
     
-    // Set up WebSocket connection for real-time updates
-    const ws = new WebSocket('ws://localhost:5000')
+    // Initialize WebSocket connection
+    const socket = connectSocket()
     
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      if (data.type === 'frictionUpdate') {
-        setFrictionScore(data.score)
-      }
-      if (data.type === 'newSession') {
-        fetchDashboardData()
-      }
+    // Listen for welcome message
+    onWelcome((data) => {
+      console.log('👋', data.message)
+      setWsConnected(true)
+      setBackendError(false)
+      toast.success('Connected to real-time updates')
+    })
+    
+    // Listen for friction updates
+    onFrictionUpdate((data) => {
+      console.log('📊 Friction update:', data.score)
+      setFrictionScore(data.score)
+    })
+    
+    // Listen for UI generated
+    onUIGenerated((data) => {
+      console.log('🎨 UI Generated:', data)
+      toast.success('New UI generated!')
+      fetchDashboardData()
+    })
+    
+    // Join a session
+    const sessionId = localStorage.getItem('sessionId') || `session-${Date.now()}`
+    localStorage.setItem('sessionId', sessionId)
+    joinSession(sessionId)
+    
+    // Start receiving friction updates
+    startFrictionUpdates(sessionId)
+    
+    // Cleanup
+    return () => {
+      // The socket service handles cleanup
     }
-    
-    return () => ws.close()
   }, [])
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
+      setBackendError(false)
       
       // Fetch stats
       const statsResponse = await api.get('/dashboard/stats')
@@ -64,7 +90,7 @@ const Dashboard = () => {
         { 
           icon: '👤', 
           label: 'Active Users', 
-          value: statsData.activeUsers.toLocaleString(), 
+          value: statsData.activeUsers?.toLocaleString() || '0', 
           change: statsData.changes?.activeUsers || '+12%', 
           positive: true 
         },
@@ -78,7 +104,7 @@ const Dashboard = () => {
         { 
           icon: '🎨', 
           label: 'Generated UIs', 
-          value: statsData.generatedUI.toLocaleString(), 
+          value: statsData.generatedUI?.toLocaleString() || '0', 
           change: statsData.changes?.generatedUI || '+10.5%', 
           positive: true 
         },
@@ -109,7 +135,17 @@ const Dashboard = () => {
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
-      toast.error('Failed to load dashboard data')
+      setBackendError(true)
+      toast.error('Failed to load dashboard data. Using fallback data.')
+      
+      // Set fallback stats
+      setStats([
+        { icon: '👤', label: 'Active Users', value: '1,248', change: '+12%', positive: true },
+        { icon: '📊', label: 'Avg. Friction Score', value: `${frictionScore}%`, change: '+8.5%', positive: false },
+        { icon: '🎨', label: 'Generated UIs', value: '320', change: '+10.5%', positive: true },
+        { icon: '✅', label: 'Success Rate', value: '95%', change: '+10%', positive: true },
+      ])
+      
     } finally {
       setLoading(false)
     }
@@ -177,11 +213,57 @@ const Dashboard = () => {
       )
     }
 
+    if (backendError) {
+      return (
+        <>
+          <div className="dashboard-header">
+            <div>
+              <h1 className="dashboard-title">Dashboard</h1>
+              <p className="dashboard-subtitle">Real-time analytics and user insights</p>
+            </div>
+            <div className="dashboard-actions">
+              <button className="btn-secondary" onClick={handleExport}>Export</button>
+              <button className="btn-primary" onClick={handleRefresh}>Refresh</button>
+            </div>
+          </div>
+          
+          <div className="dashboard-error-banner">
+            <span>⚠️</span>
+            <span>Backend server is not responding. Showing fallback data.</span>
+            <button className="btn-primary" onClick={handleRefresh}>Retry</button>
+          </div>
+
+          <div className="stats-grid">
+            {stats.map((stat, index) => (
+              <StatCard key={index} {...stat} />
+            ))}
+          </div>
+
+          <div className="dashboard-two-col">
+            <FrictionChart data={finalChartData} />
+            <HeatMap data={heatmapData} />
+          </div>
+
+          <AIStatus />
+          <SessionTable sessions={finalSessions} />
+
+          <div className="dashboard-bottom-grid">
+            <Timeline events={finalTimeline} />
+            <Logs logs={finalLogs} />
+          </div>
+
+          <footer className="dashboard-footer">
+            <span>AuraGen v1.0</span>
+            <span>© 2026 AuraGen. All rights reserved.</span>
+          </footer>
+        </>
+      )
+    }
+
     switch(activeTab) {
       case 'dashboard':
         return (
           <>
-            {/* Dashboard Header */}
             <div className="dashboard-header">
               <div>
                 <h1 className="dashboard-title">Dashboard</h1>
@@ -193,32 +275,25 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Stats Cards */}
             <div className="stats-grid">
               {stats.map((stat, index) => (
                 <StatCard key={index} {...stat} />
               ))}
             </div>
 
-            {/* Charts Row - Pass chartData correctly */}
             <div className="dashboard-two-col">
               <FrictionChart data={finalChartData} />
               <HeatMap data={heatmapData} />
             </div>
 
-            {/* AI Status */}
             <AIStatus />
-
-            {/* Session Table */}
             <SessionTable sessions={finalSessions} />
 
-            {/* Bottom Grid - Timeline & Logs */}
             <div className="dashboard-bottom-grid">
               <Timeline events={finalTimeline} />
               <Logs logs={finalLogs} />
             </div>
 
-            {/* Footer */}
             <footer className="dashboard-footer">
               <span>AuraGen v1.0</span>
               <span>© 2026 AuraGen. All rights reserved.</span>
@@ -239,10 +314,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-page">
-      {/* Sidebar */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      
-      {/* Main Content */}
       <main className="dashboard-main">
         <Topbar />
         {renderContent()}
