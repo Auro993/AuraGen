@@ -1,45 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const Session = require('../models/Session');
+const sessionController = require('../controllers/sessionController');
+const auth = require('../middleware/auth');
 
-// Create session
-router.post('/', async (req, res) => {
-  try {
-    const { userId } = req.body;
-    const session = new Session({ userId });
-    await session.save();
-    res.status(201).json(session);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.use(auth);
 
-// Get session
-router.get('/:id', async (req, res) => {
-  try {
-    const session = await Session.findById(req.params.id)
-      .populate('generatedComponents');
-    if (!session) {
-      return res.status(404).json({ message: 'Session not found' });
-    }
-    res.json(session);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Update session
-router.put('/:id', async (req, res) => {
-  try {
-    const session = await Session.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json(session);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.get('/', sessionController.getAllSessions);
+router.get('/stats', sessionController.getStats);
+router.get('/:id', sessionController.getSessionById);
 
 module.exports = router;

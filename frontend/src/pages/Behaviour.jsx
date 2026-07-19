@@ -15,9 +15,9 @@ import {
   Legend,
   Filler
 } from 'chart.js'
+import api from '../services/api'
 import './Behaviour.css'
 
-// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -34,6 +34,14 @@ ChartJS.register(
 const Behaviour = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('behavior')
+  const [loading, setLoading] = useState(true)
+  const [kpiData, setKpiData] = useState([])
+  const [behaviourData, setBehaviourData] = useState(null)
+  const [interactionData, setInteractionData] = useState(null)
+  const [triggersData, setTriggersData] = useState(null)
+  const [timelineEvents, setTimelineEvents] = useState([])
+  const [aiInsight, setAiInsight] = useState({})
+  const [backendError, setBackendError] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -42,49 +50,130 @@ const Behaviour = () => {
     }
   }, [navigate])
 
-  // KPI Data
-  const kpiData = [
-    { 
-      icon: '🖱️', 
-      label: 'Total Interactions', 
-      value: '24,589', 
-      change: '+1,645', 
-      positive: true,
-      color: '#7C5CFF'
-    },
-    { 
-      icon: '📊', 
-      label: 'Avg. Interactions / Session', 
-      value: '32.4', 
-      change: '+12.4%', 
-      positive: true,
-      color: '#3B82F6'
-    },
-    { 
-      icon: '⚡', 
-      label: 'Rage Clicks', 
-      value: '1,248', 
-      change: '+7,625', 
-      positive: false,
-      color: '#EF4444'
-    },
-    { 
-      icon: '❌', 
-      label: 'Dead Clicks', 
-      value: '842', 
-      change: '+4,235', 
-      positive: false,
-      color: '#F59E0B'
-    },
-  ]
+  useEffect(() => {
+    fetchBehaviourData()
+  }, [])
 
-  // Behaviour Distribution - Doughnut Chart
-  const behaviourData = {
-    labels: ['Mouse Movement', 'Wrong Clicks', 'Idle Time', 'Scroll Hesitation'],
+  const fetchBehaviourData = async () => {
+    try {
+      setLoading(true)
+      setBackendError(false)
+      
+      // Fetch KPI data
+      const kpiRes = await api.get('/behaviour/kpi')
+      setKpiData(kpiRes.data || [
+        { icon: '🖱️', label: 'Total Interactions', value: '24,589', change: '+1,645', positive: true, color: '#7C5CFF' },
+        { icon: '📊', label: 'Avg. Interactions / Session', value: '32.4', change: '+12.4%', positive: true, color: '#3B82F6' },
+        { icon: '⚡', label: 'Rage Clicks', value: '1,248', change: '+7,625', positive: false, color: '#EF4444' },
+        { icon: '❌', label: 'Dead Clicks', value: '842', change: '+4,235', positive: false, color: '#F59E0B' },
+      ])
+
+      // Fetch behaviour distribution
+      const behaviourRes = await api.get('/behaviour/distribution')
+      const behaviourDataRes = behaviourRes.data
+      
+      if (Array.isArray(behaviourDataRes)) {
+        // New format: array of objects with label, value, color
+        setBehaviourData({
+          labels: behaviourDataRes.map(item => item.label),
+          data: behaviourDataRes.map(item => item.value),
+          colors: behaviourDataRes.map(item => item.color)
+        })
+      } else {
+        // Old format or fallback
+        setBehaviourData({
+          labels: behaviourDataRes.labels || ['Mouse Movement', 'Wrong Clicks', 'Idle Time', 'Scroll Hesitation'],
+          data: behaviourDataRes.data || [40, 25, 20, 15],
+          colors: behaviourDataRes.colors || ['#7C5CFF', '#EF4444', '#F59E0B', '#22C55E']
+        })
+      }
+
+      // Fetch interaction trend
+      const interactionRes = await api.get('/behaviour/interaction-trend')
+      setInteractionData(interactionRes.data || {
+        labels: ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
+        data: [1200, 1500, 1800, 1600, 2000, 2200, 1900]
+      })
+
+      // Fetch triggers
+      const triggersRes = await api.get('/behaviour/triggers')
+      setTriggersData(triggersRes.data || {
+        labels: ['Confusing Navigation', 'Complex Forms', 'Too Much Information', 'Small Buttons', 'Slow Loading'],
+        data: [1248, 842, 824, 421, 312]
+      })
+
+      // Fetch timeline
+      const timelineRes = await api.get('/behaviour/timeline')
+      setTimelineEvents(timelineRes.data || [
+        { time: '10:00', event: 'User Opened Dashboard', icon: '📱' },
+        { time: '10:01', event: 'Scrolled Down', icon: '📜' },
+        { time: '10:02', event: 'Wrong Click', icon: '❌' },
+        { time: '10:03', event: 'Mouse Hesitation', icon: '🖱️' },
+        { time: '10:04', event: 'AI Suggested Simpler UI', icon: '🤖' },
+      ])
+
+      // Fetch AI insight
+      const insightRes = await api.get('/behaviour/insight')
+      setAiInsight(insightRes.data || {
+        title: '💡 AI Insight',
+        message: 'Users spend most of their time searching for the navigation menu.',
+        suggestion: 'Simplify the navigation and increase button visibility.'
+      })
+
+    } catch (error) {
+      console.error('Error fetching behaviour data:', error)
+      setBackendError(true)
+      
+      // Set fallback data
+      setKpiData([
+        { icon: '🖱️', label: 'Total Interactions', value: '24,589', change: '+1,645', positive: true, color: '#7C5CFF' },
+        { icon: '📊', label: 'Avg. Interactions / Session', value: '32.4', change: '+12.4%', positive: true, color: '#3B82F6' },
+        { icon: '⚡', label: 'Rage Clicks', value: '1,248', change: '+7,625', positive: false, color: '#EF4444' },
+        { icon: '❌', label: 'Dead Clicks', value: '842', change: '+4,235', positive: false, color: '#F59E0B' },
+      ])
+      
+      setBehaviourData({
+        labels: ['Mouse Movement', 'Wrong Clicks', 'Idle Time', 'Scroll Hesitation'],
+        data: [40, 25, 20, 15],
+        colors: ['#7C5CFF', '#EF4444', '#F59E0B', '#22C55E']
+      })
+      
+      setInteractionData({
+        labels: ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
+        data: [1200, 1500, 1800, 1600, 2000, 2200, 1900]
+      })
+      
+      setTriggersData({
+        labels: ['Confusing Navigation', 'Complex Forms', 'Too Much Information', 'Small Buttons', 'Slow Loading'],
+        data: [1248, 842, 824, 421, 312]
+      })
+      
+      setTimelineEvents([
+        { time: '10:00', event: 'User Opened Dashboard', icon: '📱' },
+        { time: '10:01', event: 'Scrolled Down', icon: '📜' },
+        { time: '10:02', event: 'Wrong Click', icon: '❌' },
+        { time: '10:03', event: 'Mouse Hesitation', icon: '🖱️' },
+        { time: '10:04', event: 'AI Suggested Simpler UI', icon: '🤖' },
+      ])
+      
+      setAiInsight({
+        title: '💡 AI Insight',
+        message: 'Users spend most of their time searching for the navigation menu.',
+        suggestion: 'Simplify the navigation and increase button visibility.'
+      })
+      
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Prepare chart data
+  const behaviourChartData = {
+    labels: behaviourData?.labels || ['Mouse Movement', 'Wrong Clicks', 'Idle Time', 'Scroll Hesitation'],
     datasets: [
       {
-        data: [40, 25, 20, 15],
-        backgroundColor: ['#7C5CFF', '#EF4444', '#F59E0B', '#22C55E'],
+        data: behaviourData?.data || [40, 25, 20, 15],
+        backgroundColor: behaviourData?.colors || ['#7C5CFF', '#EF4444', '#F59E0B', '#22C55E'],
         borderWidth: 0,
         hoverOffset: 10,
       }
@@ -116,27 +205,28 @@ const Behaviour = () => {
     maintainAspectRatio: false,
   }
 
-  const behaviourLegend = [
+  const behaviourLegend = behaviourData?.labels?.map((label, index) => ({
+    label: label,
+    value: `${behaviourData.data[index]}%`,
+    color: behaviourData.colors[index]
+  })) || [
     { label: 'Mouse Movement', value: '40%', color: '#7C5CFF' },
     { label: 'Wrong Clicks', value: '25%', color: '#EF4444' },
     { label: 'Idle Time', value: '20%', color: '#F59E0B' },
     { label: 'Scroll Hesitation', value: '15%', color: '#22C55E' },
   ]
 
-  // Interaction Over Time - Line Chart
-  const interactionData = {
-    labels: ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
+  const interactionChartData = {
+    labels: interactionData?.labels || ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
     datasets: [
       {
         label: 'Interactions',
-        data: [1200, 1500, 1800, 1600, 2000, 2200, 1900],
+        data: interactionData?.data || [1200, 1500, 1800, 1600, 2000, 2200, 1900],
         borderColor: '#7C5CFF',
         backgroundColor: (context) => {
           const chart = context.chart
           const { ctx, chartArea } = chart
-          if (!chartArea) {
-            return null
-          }
+          if (!chartArea) return null
           const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
           gradient.addColorStop(0, 'rgba(124, 92, 255, 0.3)')
           gradient.addColorStop(0.5, 'rgba(124, 92, 255, 0.1)')
@@ -189,13 +279,12 @@ const Behaviour = () => {
     interaction: { intersect: false, mode: 'index' },
   }
 
-  // Top Behaviour Triggers - Horizontal Bar Chart
-  const triggersData = {
-    labels: ['Confusing Navigation', 'Complex Forms', 'Too Much Information', 'Small Buttons', 'Slow Loading'],
+  const triggersChartData = {
+    labels: triggersData?.labels || ['Confusing Navigation', 'Complex Forms', 'Too Much Information', 'Small Buttons', 'Slow Loading'],
     datasets: [
       {
         label: 'Occurrences',
-        data: [1248, 842, 824, 421, 312],
+        data: triggersData?.data || [1248, 842, 824, 421, 312],
         backgroundColor: ['#7C5CFF', '#3B82F6', '#22C55E', '#F59E0B', '#EF4444'],
         borderRadius: 6,
       }
@@ -230,27 +319,21 @@ const Behaviour = () => {
     },
   }
 
-  // Behaviour Timeline
-  const timelineEvents = [
-    { time: '10:00', event: 'User Opened Dashboard', icon: '📱' },
-    { time: '10:01', event: 'Scrolled Down', icon: '📜' },
-    { time: '10:02', event: 'Wrong Click', icon: '❌' },
-    { time: '10:03', event: 'Mouse Hesitation', icon: '🖱️' },
-    { time: '10:04', event: 'AI Suggested Simpler UI', icon: '🤖' },
-  ]
-
-  // AI Insight
-  const aiInsight = {
-    title: '💡 AI Insight',
-    message: 'Users spend most of their time searching for the navigation menu.',
-    suggestion: 'Simplify the navigation and increase button visibility.'
+  if (loading) {
+    return (
+      <div className="behaviour-page">
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <main className="behaviour-main">
+          <div className="loading-spinner">Loading behaviour data...</div>
+        </main>
+      </div>
+    )
   }
 
   return (
     <div className="behaviour-page">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <main className="behaviour-main">
-        {/* Header */}
         <div className="behaviour-header">
           <div>
             <h1 className="behaviour-title">Behaviour</h1>
@@ -262,7 +345,6 @@ const Behaviour = () => {
           </div>
         </div>
 
-        {/* KPI Cards */}
         <div className="behaviour-kpi-grid">
           {kpiData.map((kpi, index) => (
             <div key={index} className="behaviour-kpi-card glass-card" style={{ borderColor: kpi.color }}>
@@ -278,14 +360,12 @@ const Behaviour = () => {
           ))}
         </div>
 
-        {/* Two Column: Behaviour Distribution & Interaction Over Time */}
         <div className="behaviour-two-col">
-          {/* Behaviour Distribution */}
           <div className="behaviour-distribution-card glass-card">
             <h3 className="behaviour-card-title">Behaviour Distribution</h3>
             <div className="behaviour-distribution-content">
               <div className="behaviour-donut-wrapper">
-                <Doughnut data={behaviourData} options={behaviourOptions} />
+                <Doughnut data={behaviourChartData} options={behaviourOptions} />
               </div>
               <div className="behaviour-distribution-legend">
                 {behaviourLegend.map((item, index) => (
@@ -301,26 +381,22 @@ const Behaviour = () => {
             </div>
           </div>
 
-          {/* Interaction Over Time */}
           <div className="behaviour-interaction-card glass-card">
             <h3 className="behaviour-card-title">Interaction Over Time</h3>
             <div className="behaviour-chart-wrapper">
-              <Line data={interactionData} options={interactionOptions} />
+              <Line data={interactionChartData} options={interactionOptions} />
             </div>
           </div>
         </div>
 
-        {/* Two Column: Top Behaviour Triggers & Mouse Heatmap */}
         <div className="behaviour-two-col">
-          {/* Top Behaviour Triggers */}
           <div className="behaviour-triggers-card glass-card">
             <h3 className="behaviour-card-title">Top Behaviour Triggers</h3>
             <div className="behaviour-triggers-wrapper">
-              <Bar data={triggersData} options={triggersOptions} />
+              <Bar data={triggersChartData} options={triggersOptions} />
             </div>
           </div>
 
-          {/* Mouse Heatmap */}
           <div className="behaviour-heatmap-card glass-card">
             <h3 className="behaviour-card-title">Mouse Heatmap (Overview)</h3>
             <div className="behaviour-heatmap-grid">
@@ -354,7 +430,6 @@ const Behaviour = () => {
           </div>
         </div>
 
-        {/* Behaviour Timeline */}
         <div className="behaviour-timeline-card glass-card">
           <h3 className="behaviour-card-title">Behaviour Timeline</h3>
           <div className="behaviour-timeline">
@@ -375,7 +450,6 @@ const Behaviour = () => {
           </div>
         </div>
 
-        {/* AI Insight Card */}
         <div className="behaviour-insight-card glass-card">
           <div className="behaviour-insight-header">
             <span className="behaviour-insight-icon">💡</span>
