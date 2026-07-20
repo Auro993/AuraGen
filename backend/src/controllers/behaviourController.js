@@ -1,6 +1,9 @@
 const Session = require('../models/Session');
 const BehaviourLog = require('../models/BehaviourLog');
 const FrictionScore = require('../models/FrictionScore');
+const Behaviour = require('../models/Behaviour'); // NEW: For Demo Portal
+
+// ============ EXISTING FUNCTIONS ============
 
 // Get KPI data
 exports.getKPI = async (req, res) => {
@@ -63,19 +66,18 @@ exports.getDistribution = async (req, res) => {
 
     const total = logs.reduce((sum, l) => sum + l.count, 0) || 100;
     
-    // Complete distribution map with distinct colors for each event type
     const distribution = {
-      'mouse_move': { label: 'Mouse Movement', color: '#7C5CFF' },      // Purple
-      'click': { label: 'Wrong Clicks', color: '#EF4444' },              // Red
-      'idle': { label: 'Idle Time', color: '#F59E0B' },                  // Yellow/Orange
-      'scroll': { label: 'Scroll Hesitation', color: '#22C55E' },        // Green
-      'rage_click': { label: 'Rage Clicks', color: '#EC4899' },          // Pink
-      'form_error': { label: 'Form Errors', color: '#8B5CF6' },          // Purple
-      'hover': { label: 'Hover', color: '#06B6D4' },                     // Cyan
-      'page_change': { label: 'Page Change', color: '#3B82F6' },         // Blue
-      'session_start': { label: 'Session Start', color: '#10B981' },     // Emerald
-      'session_end': { label: 'Session End', color: '#6B7280' },         // Gray
-      'click_rage': { label: 'Rage Clicks', color: '#EC4899' }           // Pink
+      'mouse_move': { label: 'Mouse Movement', color: '#7C5CFF' },
+      'click': { label: 'Wrong Clicks', color: '#EF4444' },
+      'idle': { label: 'Idle Time', color: '#F59E0B' },
+      'scroll': { label: 'Scroll Hesitation', color: '#22C55E' },
+      'rage_click': { label: 'Rage Clicks', color: '#EC4899' },
+      'form_error': { label: 'Form Errors', color: '#8B5CF6' },
+      'hover': { label: 'Hover', color: '#06B6D4' },
+      'page_change': { label: 'Page Change', color: '#3B82F6' },
+      'session_start': { label: 'Session Start', color: '#10B981' },
+      'session_end': { label: 'Session End', color: '#6B7280' },
+      'click_rage': { label: 'Rage Clicks', color: '#EC4899' }
     };
 
     const formatted = logs.map(l => ({
@@ -84,7 +86,6 @@ exports.getDistribution = async (req, res) => {
       color: distribution[l._id]?.color || '#9CA3AF'
     }));
 
-    // Sort by value descending
     formatted.sort((a, b) => b.value - a.value);
 
     res.json(formatted.length > 0 ? formatted : [
@@ -138,17 +139,14 @@ exports.getInteractionTrend = async (req, res) => {
 // Get behaviour triggers
 exports.getTriggers = async (req, res) => {
   try {
-    // More realistic trigger data based on session data
     const sessions = await Session.find();
     const totalSessions = sessions.length || 1;
     
-    // Calculate trigger frequencies from actual data
     const highFrictionSessions = await Session.countDocuments({ frictionScore: { $gt: 70 } });
     const mediumFrictionSessions = await Session.countDocuments({ 
       frictionScore: { $gt: 40, $lte: 70 } 
     });
     
-    // Generate realistic trigger data
     const triggerData = {
       'Confusing Navigation': Math.round(highFrictionSessions * 0.4 + 200),
       'Complex Forms': Math.round(highFrictionSessions * 0.3 + 150),
@@ -163,7 +161,6 @@ exports.getTriggers = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching triggers:', error);
-    // Fallback data
     res.json({
       labels: ['Confusing Navigation', 'Complex Forms', 'Too Much Information', 'Small Buttons', 'Slow Loading'],
       data: [1248, 842, 824, 421, 312]
@@ -223,7 +220,6 @@ exports.getInsight = async (req, res) => {
     const totalSessions = await Session.countDocuments();
     const highFrictionRate = totalSessions > 0 ? Math.round((highFrictionSessions / totalSessions) * 100) : 65;
     
-    // Get rage clicks count
     const rageClicks = await BehaviourLog.countDocuments({ eventType: 'rage_click' });
     const deadClicks = await BehaviourLog.countDocuments({ 
       eventType: 'click', 
@@ -274,7 +270,6 @@ exports.getInsight = async (req, res) => {
 // Get heatmap data (for future use)
 exports.getHeatmap = async (req, res) => {
   try {
-    // Generate sample heatmap data
     const heatmapData = [];
     for (let i = 0; i < 10; i++) {
       const row = [];
@@ -286,6 +281,134 @@ exports.getHeatmap = async (req, res) => {
     res.json(heatmapData);
   } catch (error) {
     console.error('Error fetching heatmap:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ============ NEW FUNCTIONS FOR DEMO PORTAL ============
+
+// Track behaviour (for Demo Portal)
+exports.trackBehaviour = async (req, res) => {
+  try {
+    const { sessionId, behaviour, formData } = req.body;
+    
+    // Create behaviour record
+    const behaviourRecord = new Behaviour({
+      sessionId: sessionId || `demo-${Date.now()}`,
+      userId: req.userId,
+      mouseDistance: behaviour.mouseDistance || 0,
+      clicks: behaviour.clicks || 0,
+      wrongClicks: behaviour.wrongClicks || 0,
+      idleTime: behaviour.idleTime || 0,
+      scrollDepth: behaviour.scrollDepth || 0,
+      formErrors: behaviour.formErrors || 0,
+      duration: behaviour.duration || 0,
+      formData: formData || {}
+    });
+    
+    await behaviourRecord.save();
+    
+    // Calculate friction score using the calculator
+    const FrictionCalculator = require('../services/frictionCalculator');
+    const frictionResult = FrictionCalculator.calculateScore(behaviour);
+    
+    // Save friction score
+    const frictionScore = new FrictionScore({
+      sessionId: sessionId || `demo-${Date.now()}`,
+      userId: req.userId,
+      score: frictionResult.score,
+      level: frictionResult.level,
+      factors: frictionResult.factors,
+      reason: frictionResult.reason
+    });
+    await frictionScore.save();
+    
+    res.json({
+      success: true,
+      behaviourId: behaviourRecord._id,
+      frictionScore: frictionResult.score,
+      frictionLevel: frictionResult.level,
+      reason: frictionResult.reason,
+      factors: frictionResult.factors
+    });
+  } catch (error) {
+    console.error('Error tracking behaviour:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get behaviour by session
+exports.getBehaviourBySession = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const behaviour = await Behaviour.findOne({ sessionId })
+      .sort({ createdAt: -1 });
+    
+    if (!behaviour) {
+      return res.status(404).json({ message: 'Behaviour not found' });
+    }
+    
+    res.json(behaviour);
+  } catch (error) {
+    console.error('Error fetching behaviour:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get all behaviour records
+exports.getAllBehaviour = async (req, res) => {
+  try {
+    const behaviour = await Behaviour.find()
+      .sort({ createdAt: -1 })
+      .populate('userId', 'name');
+    
+    res.json(behaviour);
+  } catch (error) {
+    console.error('Error fetching behaviour:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get behaviour summary
+exports.getBehaviourSummary = async (req, res) => {
+  try {
+    const totalSessions = await Behaviour.distinct('sessionId').countDocuments();
+    const avgClicks = await Behaviour.aggregate([
+      { $group: { _id: null, avg: { $avg: '$clicks' } } }
+    ]);
+    const avgIdleTime = await Behaviour.aggregate([
+      { $group: { _id: null, avg: { $avg: '$idleTime' } } }
+    ]);
+    const totalWrongClicks = await Behaviour.aggregate([
+      { $group: { _id: null, total: { $sum: '$wrongClicks' } } }
+    ]);
+    
+    res.json({
+      totalSessions: totalSessions || 0,
+      avgClicks: Math.round(avgClicks[0]?.avg || 0),
+      avgIdleTime: Math.round(avgIdleTime[0]?.avg || 0),
+      totalWrongClicks: totalWrongClicks[0]?.total || 0
+    });
+  } catch (error) {
+    console.error('Error fetching summary:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get friction for a session
+exports.getFrictionBySession = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const friction = await FrictionScore.findOne({ sessionId })
+      .sort({ createdAt: -1 });
+    
+    if (!friction) {
+      return res.status(404).json({ message: 'Friction not found' });
+    }
+    
+    res.json(friction);
+  } catch (error) {
+    console.error('Error fetching friction:', error);
     res.status(500).json({ message: error.message });
   }
 };

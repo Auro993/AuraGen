@@ -13,9 +13,9 @@ import {
   Legend,
   Filler
 } from 'chart.js'
+import api from '../services/api'
 import './FrictionEngine.css'
 
-// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,7 +30,14 @@ ChartJS.register(
 const FrictionEngine = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('friction')
+  const [loading, setLoading] = useState(true)
   const [frictionScore, setFrictionScore] = useState(72)
+  const [kpiData, setKpiData] = useState([])
+  const [chartData, setChartData] = useState(null)
+  const [frictionFactors, setFrictionFactors] = useState([])
+  const [events, setEvents] = useState([])
+  const [recommendation, setRecommendation] = useState({})
+  const [backendError, setBackendError] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -40,61 +47,177 @@ const FrictionEngine = () => {
   }, [navigate])
 
   useEffect(() => {
+    fetchFrictionData()
+    
     const interval = setInterval(() => {
       const newScore = Math.floor(Math.random() * 40) + 50
       setFrictionScore(newScore)
-    }, 5000)
+    }, 10000)
+    
     return () => clearInterval(interval)
   }, [])
 
-  const kpiData = [
-    { 
-      icon: '📊', 
-      label: 'Average Friction Score', 
-      value: `${frictionScore} /100`, 
-      change: '↑ 8.6% from last 7 days',
-      positive: false,
-      color: '#7C5CFF'
-    },
-    { 
-      icon: '🔺', 
-      label: 'Highest Friction Score', 
-      value: '92 /100', 
-      change: 'May 14, 2025',
-      positive: false,
-      color: '#EF4444'
-    },
-    { 
-      icon: '✅', 
-      label: 'Low Friction Sessions', 
-      value: '320', 
-      change: '↑ 14.2% from last 7 days',
-      positive: true,
-      color: '#22C55E'
-    },
-    { 
-      icon: '📉', 
-      label: 'Friction Reduced', 
-      value: '18.6%', 
-      change: 'after AI optimization',
-      positive: true,
-      color: '#3B82F6'
-    },
-  ]
+  const fetchFrictionData = async () => {
+    try {
+      setLoading(true)
+      setBackendError(false)
+      
+      const kpiRes = await api.get('/friction/overview')
+      const kpiDataRes = kpiRes.data
+      
+      setKpiData([
+        { 
+          icon: '📊', 
+          label: 'Average Friction Score', 
+          value: `${kpiDataRes.avgFriction || 72} /100`, 
+          change: '↑ 8.6% from last 7 days',
+          positive: false,
+          color: '#7C5CFF'
+        },
+        { 
+          icon: '🔺', 
+          label: 'Highest Friction Score', 
+          value: `${kpiDataRes.highestFriction || 92} /100`, 
+          change: kpiDataRes.highestFrictionDate || 'May 14, 2025',
+          positive: false,
+          color: '#EF4444'
+        },
+        { 
+          icon: '✅', 
+          label: 'Low Friction Sessions', 
+          value: kpiDataRes.lowFrictionSessions?.toLocaleString() || '320', 
+          change: '↑ 14.2% from last 7 days',
+          positive: true,
+          color: '#22C55E'
+        },
+        { 
+          icon: '📉', 
+          label: 'Friction Reduced', 
+          value: `${kpiDataRes.frictionReduced || 18.6}%`, 
+          change: 'after AI optimization',
+          positive: true,
+          color: '#3B82F6'
+        },
+      ])
 
-  const chartData = {
-    labels: ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
+      const trendRes = await api.get('/friction/trend')
+      const trendData = trendRes.data
+      
+      setChartData({
+        labels: trendData.labels || ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
+        values: trendData.values || [65, 72, 58, 82, 70, 45, 38]
+      })
+
+      const factorsRes = await api.get('/friction/factors')
+      setFrictionFactors(factorsRes.data || [
+        { label: 'Too many clicks', detail: 'Users are clicking more than expected', value: 38, color: '#EF4444' },
+        { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', value: 28, color: '#F59E0B' },
+        { label: 'Long idle time', detail: 'Users are taking too long to act', value: 20, color: '#7C5CFF' },
+        { label: 'Scrolling depth', detail: 'Users not finding content easily', value: 14, color: '#22C55E' },
+        { label: 'Back tracking', detail: 'Users are going back frequently', value: 10, color: '#3B82F6' },
+      ])
+
+      const eventsRes = await api.get('/friction/events')
+      setEvents(eventsRes.data || [
+        { time: 'May 16, 10:24 AM', user: 'John Doe', page: '/pricing', event: 'Rage Clicks', score: 85, severity: 'High' },
+        { time: 'May 16, 10:21 AM', user: 'Emma Smith', page: '/checkout', event: 'Long Idle Time', score: 72, severity: 'High' },
+        { time: 'May 16, 10:18 AM', user: 'Michael Brown', page: '/features', event: 'Too Many Clicks', score: 64, severity: 'Medium' },
+        { time: 'May 16, 10:15 AM', user: 'Sarah Wilson', page: '/dashboard', event: 'Back Tracking', score: 48, severity: 'Medium' },
+        { time: 'May 16, 10:12 AM', user: 'David Lee', page: '/profile', event: 'Long Idle Time', score: 35, severity: 'Low' },
+      ])
+
+      const recRes = await api.get('/friction/recommendation')
+      setRecommendation(recRes.data || {
+        insight: 'Users are experiencing high friction due to complex navigation and too many interaction steps on the pricing page.',
+        recommendation: 'Simplify the pricing layout and reduce the number of steps in the checkout process.'
+      })
+
+    } catch (error) {
+      console.error('Error fetching friction data:', error)
+      setBackendError(true)
+      
+      setKpiData([
+        { icon: '📊', label: 'Average Friction Score', value: '72 /100', change: '↑ 8.6% from last 7 days', positive: false, color: '#7C5CFF' },
+        { icon: '🔺', label: 'Highest Friction Score', value: '92 /100', change: 'May 14, 2025', positive: false, color: '#EF4444' },
+        { icon: '✅', label: 'Low Friction Sessions', value: '320', change: '↑ 14.2% from last 7 days', positive: true, color: '#22C55E' },
+        { icon: '📉', label: 'Friction Reduced', value: '18.6%', change: 'after AI optimization', positive: true, color: '#3B82F6' },
+      ])
+      
+      setChartData({
+        labels: ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
+        values: [65, 72, 58, 82, 70, 45, 38]
+      })
+      
+      setFrictionFactors([
+        { label: 'Too many clicks', detail: 'Users are clicking more than expected', value: 38, color: '#EF4444' },
+        { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', value: 28, color: '#F59E0B' },
+        { label: 'Long idle time', detail: 'Users are taking too long to act', value: 20, color: '#7C5CFF' },
+        { label: 'Scrolling depth', detail: 'Users not finding content easily', value: 14, color: '#22C55E' },
+        { label: 'Back tracking', detail: 'Users are going back frequently', value: 10, color: '#3B82F6' },
+      ])
+      
+      setEvents([
+        { time: 'May 16, 10:24 AM', user: 'John Doe', page: '/pricing', event: 'Rage Clicks', score: 85, severity: 'High' },
+        { time: 'May 16, 10:21 AM', user: 'Emma Smith', page: '/checkout', event: 'Long Idle Time', score: 72, severity: 'High' },
+        { time: 'May 16, 10:18 AM', user: 'Michael Brown', page: '/features', event: 'Too Many Clicks', score: 64, severity: 'Medium' },
+        { time: 'May 16, 10:15 AM', user: 'Sarah Wilson', page: '/dashboard', event: 'Back Tracking', score: 48, severity: 'Medium' },
+        { time: 'May 16, 10:12 AM', user: 'David Lee', page: '/profile', event: 'Long Idle Time', score: 35, severity: 'Low' },
+      ])
+      
+      setRecommendation({
+        insight: 'Users are experiencing high friction due to complex navigation and too many interaction steps on the pricing page.',
+        recommendation: 'Simplify the pricing layout and reduce the number of steps in the checkout process.'
+      })
+      
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getFrictionColor = (score) => {
+    if (score > 70) return '#EF4444'
+    if (score > 40) return '#F59E0B'
+    return '#22C55E'
+  }
+
+  const getFrictionLevel = (score) => {
+    if (score > 70) return 'High'
+    if (score > 40) return 'Medium'
+    return 'Low'
+  }
+
+  const getSeverityColor = (severity) => {
+    switch(severity) {
+      case 'High': return '#EF4444'
+      case 'Medium': return '#F59E0B'
+      case 'Low': return '#22C55E'
+      default: return '#9CA3AF'
+    }
+  }
+
+  // Navigate to AI Generator
+  const handleGenerateUI = () => {
+    navigate('/ai', { 
+      state: { 
+        frictionScore: frictionScore,
+        recommendation: recommendation,
+        from: 'friction-engine'
+      } 
+    })
+  }
+
+  // Chart configuration
+  const chartConfig = {
+    labels: chartData?.labels || ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
     datasets: [
       {
         label: 'Friction Score',
-        data: [65, 72, 58, 82, 70, 45, 38],
+        data: chartData?.values || [65, 72, 58, 82, 70, 45, 38],
         borderColor: '#7C5CFF',
         backgroundColor: (context) => {
           const chart = context.chart
           const { ctx, chartArea } = chart
-          if (!chartArea) {
-            return null
-          }
+          if (!chartArea) return null
           const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
           gradient.addColorStop(0, 'rgba(124, 92, 255, 0.3)')
           gradient.addColorStop(0.5, 'rgba(124, 92, 255, 0.1)')
@@ -155,46 +278,20 @@ const FrictionEngine = () => {
     interaction: { intersect: false, mode: 'index' },
   }
 
-  const getFrictionColor = (score) => {
-    if (score > 70) return '#EF4444'
-    if (score > 40) return '#F59E0B'
-    return '#22C55E'
-  }
-
-  const getFrictionLevel = (score) => {
-    if (score > 70) return 'High'
-    if (score > 40) return 'Medium'
-    return 'Low'
-  }
-
-  const getSeverityColor = (severity) => {
-    switch(severity) {
-      case 'High': return '#EF4444'
-      case 'Medium': return '#F59E0B'
-      case 'Low': return '#22C55E'
-      default: return '#9CA3AF'
-    }
-  }
-
-  const frictionFactors = [
-    { label: 'Too many clicks', detail: 'Users are clicking more than expected', value: 38, color: '#EF4444' },
-    { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', value: 28, color: '#F59E0B' },
-    { label: 'Long idle time', detail: 'Users are taking too long to act', value: 20, color: '#7C5CFF' },
-    { label: 'Scrolling depth', detail: 'Users not finding content easily', value: 14, color: '#22C55E' },
-    { label: 'Back tracking', detail: 'Users are going back frequently', value: 10, color: '#3B82F6' },
-  ]
-
-  const events = [
-    { time: 'May 16, 10:24 AM', user: 'John Doe', page: '/pricing', event: 'Rage Clicks', score: 85, severity: 'High' },
-    { time: 'May 16, 10:21 AM', user: 'Emma Smith', page: '/checkout', event: 'Long Idle Time', score: 72, severity: 'High' },
-    { time: 'May 16, 10:18 AM', user: 'Michael Brown', page: '/features', event: 'Too Many Clicks', score: 64, severity: 'Medium' },
-    { time: 'May 16, 10:15 AM', user: 'Sarah Wilson', page: '/dashboard', event: 'Back Tracking', score: 48, severity: 'Medium' },
-    { time: 'May 16, 10:12 AM', user: 'David Lee', page: '/profile', event: 'Long Idle Time', score: 35, severity: 'Low' },
-  ]
-
   const heatmapData = Array.from({ length: 10 }, () =>
     Array.from({ length: 14 }, () => Math.random())
   )
+
+  if (loading) {
+    return (
+      <div className="friction-page">
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <main className="friction-main">
+          <div className="loading-spinner">Loading friction data...</div>
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className="friction-page">
@@ -230,15 +327,13 @@ const FrictionEngine = () => {
 
         {/* Two Column: Friction Trend & Current Friction Meter */}
         <div className="friction-two-col">
-          {/* Friction Trend */}
           <div className="friction-trend-card glass-card">
             <h3 className="friction-card-title">Friction Score Over Time</h3>
             <div className="friction-chart-wrapper">
-              <Line data={chartData} options={chartOptions} />
+              <Line data={chartConfig} options={chartOptions} />
             </div>
           </div>
 
-          {/* Current Friction Meter */}
           <div className="friction-meter-card glass-card">
             <h3 className="friction-card-title">Current Friction Score</h3>
             <div className="friction-meter-container">
@@ -293,7 +388,6 @@ const FrictionEngine = () => {
 
         {/* Two Column: Friction Factors & High Friction Areas */}
         <div className="friction-two-col">
-          {/* Friction Factors */}
           <div className="friction-factors-card glass-card">
             <h3 className="friction-card-title">Friction Factors</h3>
             {frictionFactors.map((factor, index) => (
@@ -316,7 +410,6 @@ const FrictionEngine = () => {
             ))}
           </div>
 
-          {/* High Friction Areas (Heatmap) */}
           <div className="friction-heatmap-card glass-card">
             <h3 className="friction-card-title">High Friction Areas (Heatmap)</h3>
             <div className="friction-heatmap-grid">
@@ -347,7 +440,7 @@ const FrictionEngine = () => {
             <div className="friction-heatmap-stats">
               <div className="friction-heatmap-stat">
                 <span>Total</span>
-                <strong>72/100</strong>
+                <strong>{frictionScore}/100</strong>
               </div>
               <div className="friction-heatmap-stat">
                 <span>Cognitive Load</span>
@@ -414,14 +507,15 @@ const FrictionEngine = () => {
             <span className="friction-recommendation-icon">💡</span>
             <h3 className="friction-recommendation-title">AI Insight & Recommendation</h3>
           </div>
-          <p className="friction-recommendation-message">
-            Users are experiencing high friction due to complex navigation and too many interaction steps on the pricing page.
-          </p>
+          <p className="friction-recommendation-message">{recommendation.insight}</p>
           <div className="friction-recommendation-action">
             <span className="friction-recommendation-label">Recommended Action:</span>
-            <span className="friction-recommendation-text">Simplify the pricing layout and reduce the number of steps in the checkout process.</span>
+            <span className="friction-recommendation-text">{recommendation.recommendation}</span>
           </div>
-          <button className="btn-primary friction-generate-btn">
+          <button 
+            className="btn-primary friction-generate-btn"
+            onClick={handleGenerateUI}
+          >
             🚀 Generate Optimized UI
           </button>
         </div>

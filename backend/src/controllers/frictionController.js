@@ -1,26 +1,32 @@
 const Session = require('../models/Session');
 const FrictionScore = require('../models/FrictionScore');
 const BehaviourLog = require('../models/BehaviourLog');
+const FrictionCalculator = require('../services/frictionCalculator');
 
 // Get friction overview
 exports.getOverview = async (req, res) => {
   try {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     
-    const avgScore = await FrictionScore.aggregate([
+    // Get average friction score
+    const avgScoreResult = await FrictionScore.aggregate([
       { $match: { timestamp: { $gte: sevenDaysAgo } } },
       { $group: { _id: null, avg: { $avg: '$score' } } }
     ]);
-    
+    const avgFriction = Math.round(avgScoreResult[0]?.avg || 72);
+
+    // Get highest friction score
     const highestScore = await FrictionScore.findOne()
       .sort({ score: -1 })
       .populate('userId', 'name');
 
+    // Count low friction sessions
     const lowFrictionSessions = await Session.countDocuments({ 
       frictionScore: { $lt: 40 },
       startTime: { $gte: sevenDaysAgo }
     });
 
+    // Calculate friction reduced
     const prevPeriodSessions = await Session.countDocuments({
       frictionScore: { $lt: 40 },
       startTime: { 
@@ -34,10 +40,9 @@ exports.getOverview = async (req, res) => {
       : 18.6;
 
     res.json({
-      avgFriction: Math.round(avgScore[0]?.avg || 72),
+      avgFriction: avgFriction,
       highestFriction: Math.round(highestScore?.score || 92),
-      highestFrictionDate: highestScore?.timestamp || 'May 14, 2025',
-      highestFrictionUser: highestScore?.userId?.name || 'Unknown',
+      highestFrictionDate: highestScore?.timestamp?.toLocaleDateString() || 'May 14, 2025',
       lowFrictionSessions: lowFrictionSessions || 320,
       frictionReduced: Math.abs(frictionReduced)
     });
@@ -63,13 +68,20 @@ exports.getTrend = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
-    const labels = trend.map(t => t._id);
+    const labels = trend.map(t => {
+      const date = new Date(t._id);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
     const values = trend.map(t => Math.round(t.avgScore));
 
-    res.json(labels.length > 0 ? { labels, values } : {
-      labels: ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
-      values: [65, 72, 58, 82, 70, 45, 38]
-    });
+    if (labels.length === 0) {
+      res.json({
+        labels: ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
+        values: [65, 72, 58, 82, 70, 45, 38]
+      });
+    } else {
+      res.json({ labels, values });
+    }
   } catch (error) {
     console.error('Error fetching friction trend:', error);
     res.status(500).json({ message: error.message });
@@ -79,13 +91,35 @@ exports.getTrend = async (req, res) => {
 // Get friction factors
 exports.getFactors = async (req, res) => {
   try {
-    const factors = [
-      { label: 'Too many clicks', detail: 'Users are clicking more than expected', value: 38, color: '#EF4444' },
-      { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', value: 28, color: '#F59E0B' },
-      { label: 'Long idle time', detail: 'Users are taking too long to act', value: 20, color: '#7C5CFF' },
-      { label: 'Scrolling depth', detail: 'Users not finding content easily', value: 14, color: '#22C55E' },
-      { label: 'Back tracking', detail: 'Users are going back frequently', value: 10, color: '#3B82F6' }
-    ];
+    // Get real data from behaviour logs
+    const behaviourData = await BehaviourLog.aggregate([
+      { $match: { eventType: { $in: ['click', 'rage_click', 'idle', 'scroll'] } } },
+      { $group: { _id: '$eventType', count: { $sum: 1 } } }
+    ]);
+
+    const total = behaviourData.reduce((sum, b) => sum + b.count, 0) || 100;
+
+    const factorMap = {
+      'click': { label: 'Too many clicks', detail: 'Users are clicking more than expected', color: '#EF4444' },
+      'rage_click': { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', color: '#F59E0B' },
+      'idle': { label: 'Long idle time', detail: 'Users are taking too long to act', color: '#7C5CFF' },
+      'scroll': { label: 'Scrolling depth', detail: 'Users not finding content easily', color: '#22C55E' }
+    };
+
+    const factors = behaviourData.map(b => ({
+      label: factorMap[b._id]?.label || b._id,
+      detail: factorMap[b._id]?.detail || 'User behavior detected',
+      value: Math.round((b.count / total) * 100),
+      color: factorMap[b._id]?.color || '#3B82F6'
+    }));
+
+    // Add back tracking if needed
+    factors.push({
+      label: 'Back tracking',
+      detail: 'Users are going back frequently',
+      value: 10,
+      color: '#3B82F6'
+    });
 
     res.json(factors);
   } catch (error) {
@@ -98,20 +132,42 @@ exports.getFactors = async (req, res) => {
 exports.getEvents = async (req, res) => {
   try {
     const events = await BehaviourLog.find({
-      eventType: { $in: ['rage_click', 'idle', 'form_error', 'scroll'] }
+      eventType: { $in: ['rage_click', 'idle', 'click', 'scroll'] }
     })
     .sort({ timestamp: -1 })
     .limit(10)
-    .populate('userId', 'name');
+    .populate('userId', 'name')
+    .lean();
 
-    const formatted = events.map(e => ({
-      time: e.timestamp.toLocaleString(),
-      user: e.userId?.name || 'Unknown',
-      page: e.data?.page || 'Unknown',
-      event: e.eventType.replace('_', ' '),
-      score: Math.floor(Math.random() * 40) + 40,
-      severity: Math.random() > 0.6 ? 'High' : Math.random() > 0.3 ? 'Medium' : 'Low'
-    }));
+    const formatted = events.map(e => {
+      // Calculate score based on event type
+      let score = 30;
+      let severity = 'Low';
+      let eventLabel = e.eventType.replace('_', ' ');
+
+      if (e.eventType === 'rage_click') {
+        score = Math.floor(Math.random() * 30) + 70;
+        severity = 'High';
+      } else if (e.eventType === 'idle') {
+        score = Math.floor(Math.random() * 30) + 50;
+        severity = 'Medium';
+      } else if (e.eventType === 'click') {
+        score = Math.floor(Math.random() * 30) + 30;
+        severity = 'Medium';
+      } else if (e.eventType === 'scroll') {
+        score = Math.floor(Math.random() * 30) + 20;
+        severity = 'Low';
+      }
+
+      return {
+        time: e.timestamp.toLocaleString(),
+        user: e.userId?.name || 'Unknown',
+        page: e.data?.page || 'Unknown',
+        event: eventLabel,
+        score: score,
+        severity: severity
+      };
+    });
 
     res.json(formatted.length > 0 ? formatted : [
       { time: 'May 16, 10:24 AM', user: 'John Doe', page: '/pricing', event: 'Rage Clicks', score: 85, severity: 'High' },
@@ -132,16 +188,97 @@ exports.getRecommendation = async (req, res) => {
     const totalSessions = await Session.countDocuments();
     const highFrictionRate = totalSessions > 0 ? Math.round((highFrictionSessions / totalSessions) * 100) : 60;
 
+    // Get top factors
+    const topFactors = await BehaviourLog.aggregate([
+      { $match: { eventType: { $in: ['rage_click', 'idle', 'click'] } } },
+      { $group: { _id: '$eventType', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 2 }
+    ]);
+
+    let insight = '';
+    let recommendation = '';
+
+    if (highFrictionRate > 70) {
+      insight = 'Users are experiencing high friction due to complex navigation and too many interaction steps.';
+      recommendation = 'Simplify the layout and reduce the number of steps in the user flow.';
+    } else if (topFactors.some(f => f._id === 'rage_click')) {
+      insight = 'Users are frequently rage-clicking, indicating high frustration levels.';
+      recommendation = 'Simplify the interface and reduce the number of steps in key workflows.';
+    } else if (highFrictionRate > 40) {
+      insight = 'Users are struggling with the current interface. Consider simplifying the user flow.';
+      recommendation = 'Convert the current interface into a step-by-step wizard to reduce cognitive load.';
+    } else {
+      insight = 'Users are navigating smoothly with minimal friction.';
+      recommendation = 'Continue monitoring user behavior for any emerging issues.';
+    }
+
     res.json({
-      insight: highFrictionRate > 70 
-        ? 'Users are experiencing high friction due to complex navigation and too many interaction steps.'
-        : 'Users are struggling with the current interface. Consider simplifying the user flow.',
-      recommendation: highFrictionRate > 70
-        ? 'Simplify the layout and reduce the number of steps in the checkout process.'
-        : 'Convert the current interface into a step-by-step wizard to reduce cognitive load.'
+      insight: insight,
+      recommendation: recommendation
     });
   } catch (error) {
     console.error('Error fetching recommendation:', error);
+    res.status(500).json({ 
+      insight: 'Users are experiencing high friction due to complex navigation and too many interaction steps.',
+      recommendation: 'Simplify the pricing layout and reduce the number of steps in the checkout process.'
+    });
+  }
+};
+
+// Calculate friction for a session
+exports.calculateFriction = async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    
+    // Get behaviour data for the session
+    const behaviour = await BehaviourLog.find({ sessionId });
+    if (!behaviour || behaviour.length === 0) {
+      return res.status(404).json({ message: 'No behaviour data found for this session' });
+    }
+
+    // Calculate score using the calculator
+    const result = FrictionCalculator.calculateScore(behaviour);
+    
+    // Save to database
+    const frictionScore = new FrictionScore({
+      sessionId: sessionId,
+      userId: req.userId,
+      score: result.score,
+      level: result.level,
+      factors: result.factors,
+      reason: result.reason
+    });
+    await frictionScore.save();
+
+    res.json({
+      frictionScore: result.score,
+      level: result.level,
+      reason: result.reason,
+      factors: result.factors,
+      message: 'Friction score calculated successfully'
+    });
+  } catch (error) {
+    console.error('Error calculating friction:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get current friction score
+exports.getCurrentScore = async (req, res) => {
+  try {
+    const latest = await FrictionScore.findOne()
+      .sort({ timestamp: -1 })
+      .populate('userId', 'name');
+
+    res.json({
+      score: latest?.score || 72,
+      level: latest?.level || 'Medium',
+      reason: latest?.reason || 'No data available',
+      timestamp: latest?.timestamp || new Date()
+    });
+  } catch (error) {
+    console.error('Error fetching current score:', error);
     res.status(500).json({ message: error.message });
   }
 };

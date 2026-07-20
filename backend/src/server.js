@@ -109,7 +109,8 @@ try {
 
 // Friction routes
 try {
-  app.use('/api/friction', require('./routes/friction'));
+  const frictionRoutes = require('./routes/friction');
+  app.use('/api/friction', frictionRoutes);
   console.log('✅ Friction routes loaded');
 } catch (error) {
   console.error('❌ Friction routes error:', error.message);
