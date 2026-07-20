@@ -11,36 +11,39 @@ const DemoPortal = () => {
   const [activeTab, setActiveTab] = useState('demoportal')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [frictionScore, setFrictionScore] = useState(null)
+  const [submitError, setSubmitError] = useState(null)
   
-  // Track behaviour on this page
   const behaviour = useBehaviourTracking('demo-session-001')
   
   const handleSubmit = async (formData) => {
     setIsSubmitting(true)
+    setSubmitError(null)
     
     try {
-      // Add behaviour data to form submission
+      // Prepare the payload with correct structure
       const payload = {
-        ...formData,
+        sessionId: behaviour.sessionId || `demo-${Date.now()}`,
         behaviour: {
-          mouseDistance: behaviour.mouseDistance,
-          clicks: behaviour.clicks,
-          wrongClicks: behaviour.wrongClicks,
-          idleTime: behaviour.idleTime,
-          scrollDepth: behaviour.scrollDepth,
+          mouseDistance: behaviour.mouseDistance || 0,
+          clicks: behaviour.clicks || 0,
+          wrongClicks: behaviour.wrongClicks || 0,
+          idleTime: behaviour.idleTime || 0,
+          scrollDepth: behaviour.scrollDepth || 0,
           formErrors: behaviour.formErrors || 0,
-          sessionId: behaviour.sessionId,
-          duration: behaviour.duration || 0
-        }
+          duration: behaviour.duration || 0,
+          rageClicks: behaviour.rageClicks || 0
+        },
+        formData: formData || {}
       }
       
-      // Save behaviour to backend
+      console.log('📤 Sending payload:', payload)
+      
       const response = await saveBehaviour(payload)
       
-      // Get friction score from response
+      console.log('✅ Response:', response.data)
+      
       if (response.data?.frictionScore) {
         setFrictionScore(response.data.frictionScore)
-        // Navigate to friction engine to see results
         setTimeout(() => {
           navigate('/friction', { 
             state: { 
@@ -52,7 +55,8 @@ const DemoPortal = () => {
       }
       
     } catch (error) {
-      console.error('Error submitting form:', error)
+      console.error('❌ Error submitting form:', error)
+      setSubmitError(error.response?.data?.message || error.message || 'Something went wrong')
     } finally {
       setIsSubmitting(false)
     }
@@ -64,7 +68,7 @@ const DemoPortal = () => {
       <main className="demo-portal-main">
         <div className="demo-portal-header">
           <div>
-            <h1 className="demo-portal-title">📝 Demo Portal</h1>
+            <h1 className="demo-portal-title">🧪 Demo Portal</h1>
             <p className="demo-portal-subtitle">
               Fill out the form below. AuraGen will track your behaviour 
               and analyze friction in real-time.
@@ -80,10 +84,16 @@ const DemoPortal = () => {
         <div className="demo-portal-content">
           <div className="demo-portal-form-card glass-card">
             <TaxForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+            {submitError && (
+              <div className="demo-portal-error">
+                <span>❌</span>
+                <span>{submitError}</span>
+              </div>
+            )}
           </div>
           
           <div className="demo-portal-info-card glass-card">
-            <h3 className="info-title">📊 What's Happening?</h3>
+            <h3 className="info-title">📊 Live Behaviour Stats</h3>
             <div className="info-stats">
               <div className="info-stat">
                 <span className="stat-icon">🖱️</span>

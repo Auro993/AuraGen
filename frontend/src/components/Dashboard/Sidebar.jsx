@@ -5,17 +5,16 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate()
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '🏠', path: '/dashboard' },
-    { id: 'analytics', label: 'Analytics', icon: '📊', path: '/analytics' },
+    { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/dashboard' },
+    { id: 'analytics', label: 'Analytics', icon: '📈', path: '/analytics' },
     { id: 'user-sessions', label: 'User Sessions', icon: '👥', path: '/user-sessions' },
     { id: 'behavior', label: 'Behaviour', icon: '🖱️', path: '/behavior' },
     { id: 'friction', label: 'Friction Engine', icon: '⚡', path: '/friction' },
-   { id: 'ai', label: 'AI Generator', icon: '🤖', path: '/ai' },
-    { id: 'generated', label: 'Generated UI', icon: '🧩', path: '/generated' },
-    { id: 'history', label: 'History', icon: '📜', path: '/history' },
+    { id: 'ai', label: 'AI Generator', icon: '🤖', path: '/ai' },
+    { id: 'generated', label: 'Generated UI', icon: '🪄', path: '/generated' },
+    { id: 'history', label: 'History', icon: '🕒', path: '/history' },
     { id: 'settings', label: 'Settings', icon: '⚙️', path: '/settings' },
-    { id: 'docs', label: 'Help & Docs', icon: '📄', path: '/docs' },
-    
+    { id: 'docs', label: 'Help & Docs', icon: '❓', path: '/docs' },
   ]
 
   const handleLogout = () => {
@@ -48,6 +47,23 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           </button>
         ))}
       </nav>
+
+      {/* Separator */}
+      <div className="sidebar-separator"></div>
+
+      {/* Demo Portal - Bottom Section */}
+      <div className="sidebar-demo-section">
+        <button
+          className={`sidebar-item ${activeTab === 'demoportal' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('demoportal')
+            navigate('/demo-portal')
+          }}
+        >
+          <span className="sidebar-icon">🧪</span>
+          <span className="sidebar-label">Demo Portal</span>
+        </button>
+      </div>
 
       <div className="sidebar-footer">
         <button className="sidebar-logout" onClick={handleLogout}>

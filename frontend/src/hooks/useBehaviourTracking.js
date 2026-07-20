@@ -8,7 +8,8 @@ const useBehaviourTracking = (sessionId) => {
     idleTime: 0,
     scrollDepth: 0,
     formErrors: 0,
-    sessionId: sessionId,
+    rageClicks: 0,
+    sessionId: sessionId || `demo-${Date.now()}`,
     duration: 0
   })
   
@@ -16,6 +17,8 @@ const useBehaviourTracking = (sessionId) => {
   const idleTimer = useRef(null)
   const startTime = useRef(Date.now())
   const isIdle = useRef(false)
+  const clickCount = useRef(0)
+  const clickTimer = useRef(null)
   
   // Track mouse movement
   const handleMouseMove = useCallback((e) => {
@@ -47,6 +50,19 @@ const useBehaviourTracking = (sessionId) => {
       target.tagName === 'BUTTON' && 
       !target.closest('form') &&
       !target.closest('button[type="submit"]')
+    
+    // Track rage clicks (rapid clicks)
+    clickCount.current += 1
+    clearTimeout(clickTimer.current)
+    clickTimer.current = setTimeout(() => {
+      if (clickCount.current > 5) {
+        setBehaviour(prev => ({
+          ...prev,
+          rageClicks: prev.rageClicks + clickCount.current
+        }))
+      }
+      clickCount.current = 0
+    }, 2000)
     
     setBehaviour(prev => ({
       ...prev,
@@ -106,6 +122,7 @@ const useBehaviourTracking = (sessionId) => {
       window.removeEventListener('click', handleClick)
       window.removeEventListener('scroll', handleScroll)
       clearTimeout(idleTimer.current)
+      clearTimeout(clickTimer.current)
     }
   }, [handleMouseMove, handleClick, handleScroll])
   
@@ -126,10 +143,12 @@ const useBehaviourTracking = (sessionId) => {
       idleTime: 0,
       scrollDepth: 0,
       formErrors: 0,
-      sessionId: sessionId,
+      rageClicks: 0,
+      sessionId: sessionId || `demo-${Date.now()}`,
       duration: 0
     })
     startTime.current = Date.now()
+    clickCount.current = 0
   }, [sessionId])
   
   return {

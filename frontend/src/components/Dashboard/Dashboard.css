@@ -1409,3 +1409,32 @@
   padding: 6px 16px !important;
   font-size: 13px !important;
 }
+/* Sidebar Separator */
+.sidebar-separator {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(124, 92, 255, 0.3), transparent);
+  margin: 8px 16px 12px;
+}
+
+/* Demo Portal Section */
+.sidebar-demo-section {
+  padding: 0 12px 8px;
+}
+
+.sidebar-demo-section .sidebar-item {
+  background: rgba(124, 92, 255, 0.08);
+  border: 1px solid rgba(124, 92, 255, 0.15);
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.sidebar-demo-section .sidebar-item:hover {
+  background: rgba(124, 92, 255, 0.18);
+  border-color: rgba(124, 92, 255, 0.3);
+}
+
+.sidebar-demo-section .sidebar-item.active {
+  background: rgba(124, 92, 255, 0.25);
+  border-color: #7C5CFF;
+  box-shadow: 0 0 20px rgba(124, 92, 255, 0.15);
+}

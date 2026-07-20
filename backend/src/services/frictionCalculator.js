@@ -1,101 +1,76 @@
 class FrictionCalculator {
-  static calculateScore(behaviourData) {
+  static calculateScore(behaviour) {
     let score = 0;
     const factors = [];
 
-    // Extract metrics from behaviour data
-    const metrics = behaviourData.reduce((acc, log) => {
-      if (log.eventType === 'click') {
-        acc.clicks = (acc.clicks || 0) + 1;
-        // Check if it was a wrong click
-        if (log.data?.error) {
-          acc.wrongClicks = (acc.wrongClicks || 0) + 1;
-        }
-      }
-      if (log.eventType === 'rage_click') {
-        acc.rageClicks = (acc.rageClicks || 0) + 1;
-      }
-      if (log.eventType === 'idle') {
-        acc.idleTime = (acc.idleTime || 0) + (log.data?.duration || 5);
-      }
-      if (log.eventType === 'scroll') {
-        acc.scrollDepth = Math.max(acc.scrollDepth || 0, log.data?.scrollDepth || 0);
-      }
-      if (log.eventType === 'form_error') {
-        acc.formErrors = (acc.formErrors || 0) + 1;
-      }
-      return acc;
-    }, {});
-
-    // Calculate individual scores
-    // Wrong Clicks: +5 each
-    if (metrics.wrongClicks) {
-      const wrongClickScore = metrics.wrongClicks * 5;
+    // Wrong Clicks: +5 each (max 50)
+    if (behaviour.wrongClicks) {
+      const wrongClickScore = Math.min(behaviour.wrongClicks * 5, 50);
       score += wrongClickScore;
       factors.push({
         name: 'Wrong Clicks',
         value: wrongClickScore,
         weight: 5,
-        count: metrics.wrongClicks,
+        count: behaviour.wrongClicks,
         color: '#EF4444'
       });
     }
 
-    // Rage Clicks: +10 each
-    if (metrics.rageClicks) {
-      const rageScore = metrics.rageClicks * 10;
+    // Rage Clicks: +10 each (max 50)
+    if (behaviour.rageClicks) {
+      const rageScore = Math.min(behaviour.rageClicks * 10, 50);
       score += rageScore;
       factors.push({
         name: 'Rage Clicks',
         value: rageScore,
         weight: 10,
-        count: metrics.rageClicks,
+        count: behaviour.rageClicks,
         color: '#EC4899'
       });
     }
 
-    // Idle Time: +1 per second
-    if (metrics.idleTime) {
-      const idleScore = Math.min(metrics.idleTime, 30);
+    // Idle Time: +1 per second (max 30)
+    if (behaviour.idleTime) {
+      const idleScore = Math.min(behaviour.idleTime, 30);
       score += idleScore;
       factors.push({
         name: 'Idle Time',
         value: idleScore,
         weight: 1,
-        count: metrics.idleTime,
+        count: behaviour.idleTime,
         color: '#F59E0B'
       });
     }
 
-    // Form Errors: +8 each
-    if (metrics.formErrors) {
-      const errorScore = metrics.formErrors * 8;
+    // Form Errors: +8 each (max 40)
+    if (behaviour.formErrors) {
+      const errorScore = Math.min(behaviour.formErrors * 8, 40);
       score += errorScore;
       factors.push({
         name: 'Form Errors',
         value: errorScore,
         weight: 8,
-        count: metrics.formErrors,
+        count: behaviour.formErrors,
         color: '#8B5CF6'
       });
     }
 
     // Excessive Scroll: +2 per 100px (capped at 20)
-    if (metrics.scrollDepth) {
-      const scrollScore = Math.min(Math.floor(metrics.scrollDepth / 100) * 2, 20);
+    if (behaviour.scrollDepth) {
+      const scrollScore = Math.min(Math.floor(behaviour.scrollDepth / 100) * 2, 20);
       score += scrollScore;
       factors.push({
         name: 'Excessive Scroll',
         value: scrollScore,
         weight: 2,
-        count: metrics.scrollDepth,
+        count: behaviour.scrollDepth,
         color: '#22C55E'
       });
     }
 
     // Determine level
     let level = 'Low';
-    let reason = 'User is navigating smoothly';
+    let reason = 'User is navigating smoothly.';
 
     if (score > 80) {
       level = 'Critical';
@@ -118,8 +93,7 @@ class FrictionCalculator {
       score: Math.min(score, 100),
       level: level,
       reason: reason,
-      factors: factors,
-      metrics: metrics
+      factors: factors
     };
   }
 }

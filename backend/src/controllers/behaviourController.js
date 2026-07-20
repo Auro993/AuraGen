@@ -1,7 +1,7 @@
 const Session = require('../models/Session');
 const BehaviourLog = require('../models/BehaviourLog');
 const FrictionScore = require('../models/FrictionScore');
-const Behaviour = require('../models/Behaviour'); // NEW: For Demo Portal
+const Behaviour = require('../models/Behaviour');
 
 // ============ EXISTING FUNCTIONS ============
 
@@ -290,11 +290,22 @@ exports.getHeatmap = async (req, res) => {
 // Track behaviour (for Demo Portal)
 exports.trackBehaviour = async (req, res) => {
   try {
+    console.log('📝 Tracking behaviour request received');
+    
     const { sessionId, behaviour, formData } = req.body;
+    
+    // Validate input
+    if (!sessionId) {
+      return res.status(400).json({ message: 'sessionId is required' });
+    }
+    
+    if (!behaviour) {
+      return res.status(400).json({ message: 'behaviour data is required' });
+    }
     
     // Create behaviour record
     const behaviourRecord = new Behaviour({
-      sessionId: sessionId || `demo-${Date.now()}`,
+      sessionId: sessionId,
       userId: req.userId,
       mouseDistance: behaviour.mouseDistance || 0,
       clicks: behaviour.clicks || 0,
@@ -307,21 +318,47 @@ exports.trackBehaviour = async (req, res) => {
     });
     
     await behaviourRecord.save();
+    console.log('✅ Behaviour saved:', behaviourRecord._id);
     
     // Calculate friction score using the calculator
-    const FrictionCalculator = require('../services/frictionCalculator');
-    const frictionResult = FrictionCalculator.calculateScore(behaviour);
+    let frictionResult = {
+      score: 45,
+      level: 'Medium',
+      reason: 'User is experiencing some difficulty.',
+      factors: []
+    };
+    
+    try {
+      const FrictionCalculator = require('../services/frictionCalculator');
+      frictionResult = FrictionCalculator.calculateScore(behaviour);
+    } catch (calcError) {
+      console.log('⚠️ Using fallback friction calculation');
+      let score = 0;
+      score += Math.min((behaviour.wrongClicks || 0), 10) * 5;
+      score += Math.min((behaviour.rageClicks || 0), 5) * 10;
+      score += Math.min((behaviour.idleTime || 0), 30);
+      
+      frictionResult = {
+        score: Math.min(score, 100),
+        level: score > 70 ? 'High' : score > 40 ? 'Medium' : 'Low',
+        reason: score > 70 ? 'User is experiencing significant difficulty.' : 
+                score > 40 ? 'User is experiencing some difficulty.' : 
+                'User is navigating smoothly.',
+        factors: []
+      };
+    }
     
     // Save friction score
     const frictionScore = new FrictionScore({
-      sessionId: sessionId || `demo-${Date.now()}`,
+      sessionId: sessionId,
       userId: req.userId,
       score: frictionResult.score,
       level: frictionResult.level,
-      factors: frictionResult.factors,
+      factors: frictionResult.factors || [],
       reason: frictionResult.reason
     });
     await frictionScore.save();
+    console.log('✅ Friction score saved:', frictionScore.score);
     
     res.json({
       success: true,
@@ -329,11 +366,14 @@ exports.trackBehaviour = async (req, res) => {
       frictionScore: frictionResult.score,
       frictionLevel: frictionResult.level,
       reason: frictionResult.reason,
-      factors: frictionResult.factors
+      factors: frictionResult.factors || []
     });
   } catch (error) {
-    console.error('Error tracking behaviour:', error);
-    res.status(500).json({ message: error.message });
+    console.error('❌ Error tracking behaviour:', error);
+    res.status(500).json({ 
+      message: error.message || 'Internal server error',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 

@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 
 const frictionScoreSchema = new mongoose.Schema({
   sessionId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Session',
+    type: String,  // Changed from ObjectId to String to accept demo IDs
     required: true
   },
   userId: {
@@ -18,16 +17,16 @@ const frictionScoreSchema = new mongoose.Schema({
   },
   level: {
     type: String,
-    enum: ['low', 'medium', 'high', 'critical'],
+    enum: ['low', 'medium', 'high', 'critical', 'Low', 'Medium', 'High', 'Critical'], // Added capitalized versions
     default: 'medium'
   },
   factors: {
-    mouseSpeed: { type: Number, default: 0 },
-    hesitationTime: { type: Number, default: 0 },
-    errorRate: { type: Number, default: 0 },
-    rageClicks: { type: Number, default: 0 },
-    idleTime: { type: Number, default: 0 },
-    wrongClicks: { type: Number, default: 0 }
+    type: Array,
+    default: []
+  },
+  reason: {
+    type: String,
+    default: ''
   },
   timestamp: {
     type: Date,
@@ -36,9 +35,5 @@ const frictionScoreSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
-
-// Index for faster queries
-frictionScoreSchema.index({ sessionId: 1, timestamp: -1 });
-frictionScoreSchema.index({ userId: 1, timestamp: -1 });
 
 module.exports = mongoose.model('FrictionScore', frictionScoreSchema);

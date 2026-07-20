@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const behaviourSchema = new mongoose.Schema({
   sessionId: {
-    type: String,
+    type: String,  // Changed to String for demo IDs
     required: true
   },
   userId: {
@@ -40,15 +40,6 @@ const behaviourSchema = new mongoose.Schema({
   formData: {
     type: Object,
     default: {}
-  },
-  frictionScore: {
-    type: Number,
-    default: 0
-  },
-  frictionLevel: {
-    type: String,
-    enum: ['Low', 'Medium', 'High', 'Critical'],
-    default: 'Low'
   },
   timestamp: {
     type: Date,

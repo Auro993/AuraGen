@@ -7,6 +7,15 @@ import Architecture from './pages/Architecture'
 import Demo from './pages/Demo'
 import Dashboard from './pages/Dashboard'
 import Analytics from './pages/Analytics'
+import UserSessions from './pages/UserSessions'
+import Behaviour from './pages/Behaviour'
+import FrictionEngine from './pages/FrictionEngine'
+import AIGenerator from './pages/AIGenerator'
+import GeneratedUI from './pages/GeneratedUI'
+import History from './pages/History'
+import DemoPortal from './pages/DemoPortal'
+import Settings from './pages/Settings'
+import HelpDocs from './pages/HelpDocs'
 import Pricing from './pages/Pricing'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -16,14 +25,6 @@ import './styles/global.css'
 import './styles/variables.css'
 import './styles/animations.css'
 import './styles/utilities.css'
-import UserSessions from './pages/UserSessions'
-import Behaviour from './pages/Behaviour'
-import FrictionEngine from './pages/FrictionEngine'
-import AIGenerator from './pages/AIGenerator'
-import GeneratedUI from './pages/GeneratedUI'
-import History from './pages/History'
-import Settings from './pages/Settings'
-import HelpDocs from './pages/HelpDocs'
 
 function App() {
   return (
@@ -64,19 +65,20 @@ function App() {
         <Route path="/demo" element={<Demo />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/analytics" element={<Analytics />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<NotFound />} />
         <Route path="/user-sessions" element={<UserSessions />} />
         <Route path="/behavior" element={<Behaviour />} />
         <Route path="/friction" element={<FrictionEngine />} />
         <Route path="/ai" element={<AIGenerator />} />
         <Route path="/generated" element={<GeneratedUI />} />
         <Route path="/history" element={<History />} />
+        <Route path="/demo-portal" element={<DemoPortal />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/docs" element={<HelpDocs />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   )
