@@ -12,6 +12,7 @@ router.get('/factors', frictionController.getFactors);
 router.get('/events', frictionController.getEvents);
 router.get('/recommendation', frictionController.getRecommendation);
 router.get('/current', frictionController.getCurrentScore);
+router.get('/breakdown', frictionController.getBreakdown);  // NEW
 router.post('/calculate', frictionController.calculateFriction);
 
 module.exports = router;

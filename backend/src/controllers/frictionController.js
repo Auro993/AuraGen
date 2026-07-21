@@ -1,6 +1,7 @@
 const Session = require('../models/Session');
 const FrictionScore = require('../models/FrictionScore');
 const BehaviourLog = require('../models/BehaviourLog');
+const Behaviour = require('../models/Behaviour');
 const FrictionCalculator = require('../services/frictionCalculator');
 
 // Get friction overview
@@ -101,8 +102,8 @@ exports.getFactors = async (req, res) => {
 
     const factorMap = {
       'click': { label: 'Too many clicks', detail: 'Users are clicking more than expected', color: '#EF4444' },
-      'rage_click': { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', color: '#F59E0B' },
-      'idle': { label: 'Long idle time', detail: 'Users are taking too long to act', color: '#7C5CFF' },
+      'rage_click': { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', color: '#EC4899' },
+      'idle': { label: 'Long idle time', detail: 'Users are taking too long to act', color: '#F59E0B' },
       'scroll': { label: 'Scrolling depth', detail: 'Users not finding content easily', color: '#22C55E' }
     };
 
@@ -140,7 +141,6 @@ exports.getEvents = async (req, res) => {
     .lean();
 
     const formatted = events.map(e => {
-      // Calculate score based on event type
       let score = 30;
       let severity = 'Low';
       let eventLabel = e.eventType.replace('_', ' ');
@@ -231,16 +231,13 @@ exports.calculateFriction = async (req, res) => {
   try {
     const { sessionId } = req.body;
     
-    // Get behaviour data for the session
     const behaviour = await BehaviourLog.find({ sessionId });
     if (!behaviour || behaviour.length === 0) {
       return res.status(404).json({ message: 'No behaviour data found for this session' });
     }
 
-    // Calculate score using the calculator
     const result = FrictionCalculator.calculateScore(behaviour);
     
-    // Save to database
     const frictionScore = new FrictionScore({
       sessionId: sessionId,
       userId: req.userId,
@@ -279,6 +276,75 @@ exports.getCurrentScore = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching current score:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get friction breakdown
+exports.getBreakdown = async (req, res) => {
+  try {
+    // Get the latest behaviour data
+    const latestBehaviour = await Behaviour.findOne()
+      .sort({ createdAt: -1 });
+    
+    if (!latestBehaviour) {
+      return res.json([
+        { label: 'Wrong Clicks', value: 0, contribution: '+0', icon: '❌', color: '#EF4444' },
+        { label: 'Idle Time', value: 0, contribution: '+0', icon: '⏱️', color: '#F59E0B' },
+        { label: 'Scroll Depth', value: 0, contribution: '+0', icon: '📜', color: '#22C55E' },
+        { label: 'Mouse Movement', value: 0, contribution: '+0', icon: '🖱️', color: '#7C5CFF' },
+        { label: 'Completion Time', value: 0, contribution: '+0', icon: '⏳', color: '#3B82F6' },
+      ]);
+    }
+    
+    // Calculate breakdown based on actual behaviour
+    const wrongClicksValue = Math.min(latestBehaviour.wrongClicks || 0, 10);
+    const idleTimeValue = Math.min(Math.round((latestBehaviour.idleTime || 0) / 2), 20);
+    const scrollValue = Math.min(Math.round((latestBehaviour.scrollDepth || 0) / 10), 15);
+    const mouseValue = Math.min(Math.round((latestBehaviour.mouseDistance || 0) / 250), 12);
+    const timeValue = Math.min(Math.round((latestBehaviour.duration || 0) / 15), 10);
+    
+    const breakdown = [
+      { 
+        label: 'Wrong Clicks', 
+        value: wrongClicksValue,
+        contribution: `+${wrongClicksValue * 4}`,
+        icon: '❌', 
+        color: '#EF4444' 
+      },
+      { 
+        label: 'Idle Time', 
+        value: idleTimeValue,
+        contribution: `+${idleTimeValue * 2}`,
+        icon: '⏱️', 
+        color: '#F59E0B' 
+      },
+      { 
+        label: 'Scroll Depth', 
+        value: scrollValue,
+        contribution: `+${scrollValue}`,
+        icon: '📜', 
+        color: '#22C55E' 
+      },
+      { 
+        label: 'Mouse Movement', 
+        value: mouseValue,
+        contribution: `+${mouseValue}`,
+        icon: '🖱️', 
+        color: '#7C5CFF' 
+      },
+      { 
+        label: 'Completion Time', 
+        value: timeValue,
+        contribution: `+${timeValue}`,
+        icon: '⏳', 
+        color: '#3B82F6' 
+      },
+    ];
+    
+    res.json(breakdown);
+  } catch (error) {
+    console.error('Error fetching breakdown:', error);
     res.status(500).json({ message: error.message });
   }
 };

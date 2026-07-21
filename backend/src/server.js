@@ -116,6 +116,15 @@ try {
   console.error('❌ Friction routes error:', error.message);
 }
 
+// AI Generator routes
+try {
+  const aiGeneratorRoutes = require('./routes/aiGeneratorRoutes');
+  app.use('/api/ai', aiGeneratorRoutes);
+  console.log('✅ AI Generator routes loaded');
+} catch (error) {
+  console.error('❌ AI Generator routes error:', error.message);
+}
+
 // UI routes
 try {
   app.use('/api/ui', require('./routes/ui'));

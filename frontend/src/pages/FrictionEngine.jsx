@@ -35,6 +35,7 @@ const FrictionEngine = () => {
   const [kpiData, setKpiData] = useState([])
   const [chartData, setChartData] = useState(null)
   const [frictionFactors, setFrictionFactors] = useState([])
+  const [scoreBreakdown, setScoreBreakdown] = useState([])
   const [events, setEvents] = useState([])
   const [recommendation, setRecommendation] = useState({})
   const [backendError, setBackendError] = useState(false)
@@ -110,11 +111,20 @@ const FrictionEngine = () => {
 
       const factorsRes = await api.get('/friction/factors')
       setFrictionFactors(factorsRes.data || [
-        { label: 'Too many clicks', detail: 'Users are clicking more than expected', value: 38, color: '#EF4444' },
-        { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', value: 28, color: '#F59E0B' },
-        { label: 'Long idle time', detail: 'Users are taking too long to act', value: 20, color: '#7C5CFF' },
-        { label: 'Scrolling depth', detail: 'Users not finding content easily', value: 14, color: '#22C55E' },
+        { label: 'Too many clicks', detail: 'Users are clicking more than expected', value: 30, color: '#EF4444' },
+        { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', value: 25, color: '#EC4899' },
+        { label: 'Long idle time', detail: 'Users are taking too long to act', value: 22, color: '#F59E0B' },
+        { label: 'Scrolling depth', detail: 'Users not finding content easily', value: 24, color: '#22C55E' },
         { label: 'Back tracking', detail: 'Users are going back frequently', value: 10, color: '#3B82F6' },
+      ])
+
+      const breakdownRes = await api.get('/friction/breakdown')
+      setScoreBreakdown(breakdownRes.data || [
+        { label: 'Wrong Clicks', value: 25, contribution: '+25', icon: '❌', color: '#EF4444' },
+        { label: 'Idle Time', value: 20, contribution: '+20', icon: '⏱️', color: '#F59E0B' },
+        { label: 'Scroll Depth', value: 15, contribution: '+15', icon: '📜', color: '#22C55E' },
+        { label: 'Mouse Movement', value: 12, contribution: '+12', icon: '🖱️', color: '#7C5CFF' },
+        { label: 'Completion Time', value: 10, contribution: '+10', icon: '⏳', color: '#3B82F6' },
       ])
 
       const eventsRes = await api.get('/friction/events')
@@ -149,11 +159,19 @@ const FrictionEngine = () => {
       })
       
       setFrictionFactors([
-        { label: 'Too many clicks', detail: 'Users are clicking more than expected', value: 38, color: '#EF4444' },
-        { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', value: 28, color: '#F59E0B' },
-        { label: 'Long idle time', detail: 'Users are taking too long to act', value: 20, color: '#7C5CFF' },
-        { label: 'Scrolling depth', detail: 'Users not finding content easily', value: 14, color: '#22C55E' },
+        { label: 'Too many clicks', detail: 'Users are clicking more than expected', value: 30, color: '#EF4444' },
+        { label: 'Rage clicks', detail: 'Multiple rapid clicks detected', value: 25, color: '#EC4899' },
+        { label: 'Long idle time', detail: 'Users are taking too long to act', value: 22, color: '#F59E0B' },
+        { label: 'Scrolling depth', detail: 'Users not finding content easily', value: 24, color: '#22C55E' },
         { label: 'Back tracking', detail: 'Users are going back frequently', value: 10, color: '#3B82F6' },
+      ])
+      
+      setScoreBreakdown([
+        { label: 'Wrong Clicks', value: 25, contribution: '+25', icon: '❌', color: '#EF4444' },
+        { label: 'Idle Time', value: 20, contribution: '+20', icon: '⏱️', color: '#F59E0B' },
+        { label: 'Scroll Depth', value: 15, contribution: '+15', icon: '📜', color: '#22C55E' },
+        { label: 'Mouse Movement', value: 12, contribution: '+12', icon: '🖱️', color: '#7C5CFF' },
+        { label: 'Completion Time', value: 10, contribution: '+10', icon: '⏳', color: '#3B82F6' },
       ])
       
       setEvents([
@@ -195,7 +213,6 @@ const FrictionEngine = () => {
     }
   }
 
-  // Navigate to AI Generator
   const handleGenerateUI = () => {
     navigate('/ai', { 
       state: { 
@@ -206,7 +223,6 @@ const FrictionEngine = () => {
     })
   }
 
-  // Chart configuration
   const chartConfig = {
     labels: chartData?.labels || ['May 10', 'May 11', 'May 12', 'May 13', 'May 14', 'May 15', 'May 16'],
     datasets: [
@@ -277,10 +293,6 @@ const FrictionEngine = () => {
     },
     interaction: { intersect: false, mode: 'index' },
   }
-
-  const heatmapData = Array.from({ length: 10 }, () =>
-    Array.from({ length: 14 }, () => Math.random())
-  )
 
   if (loading) {
     return (
@@ -386,8 +398,9 @@ const FrictionEngine = () => {
           </div>
         </div>
 
-        {/* Two Column: Friction Factors & High Friction Areas */}
+        {/* Two Column: Friction Factors & Score Breakdown */}
         <div className="friction-two-col">
+          {/* Friction Factors */}
           <div className="friction-factors-card glass-card">
             <h3 className="friction-card-title">Friction Factors</h3>
             {frictionFactors.map((factor, index) => (
@@ -410,12 +423,48 @@ const FrictionEngine = () => {
             ))}
           </div>
 
-          <div className="friction-heatmap-card glass-card">
+          {/* Score Breakdown */}
+          <div className="friction-breakdown-card glass-card">
+            <h3 className="friction-card-title">📊 Friction Score Breakdown</h3>
+            <div className="friction-breakdown-list">
+              {scoreBreakdown.map((item, index) => (
+                <div key={index} className="friction-breakdown-item">
+                  <div className="friction-breakdown-left">
+                    <span className="friction-breakdown-icon">{item.icon}</span>
+                    <span className="friction-breakdown-label">{item.label}</span>
+                  </div>
+                  <div className="friction-breakdown-right">
+                    <span className="friction-breakdown-value" style={{ color: item.color }}>
+                      {item.value}
+                    </span>
+                    <span className="friction-breakdown-contribution" style={{ color: item.color }}>
+                      {item.contribution}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="friction-breakdown-total">
+              <span className="friction-breakdown-total-label">TOTAL</span>
+              <span className="friction-breakdown-total-value" style={{ color: getFrictionColor(frictionScore) }}>
+                {frictionScore}/100
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Heatmap - Smaller */}
+        <div className="friction-heatmap-card glass-card">
+          <div className="friction-heatmap-header">
             <h3 className="friction-card-title">High Friction Areas (Heatmap)</h3>
-            <div className="friction-heatmap-grid">
-              {heatmapData.map((row, rowIndex) => (
-                <div key={rowIndex} className="friction-heatmap-row">
-                  {row.map((intensity, colIndex) => (
+            <span className="friction-heatmap-badge">Hotspots</span>
+          </div>
+          <div className="friction-heatmap-grid">
+            {Array.from({ length: 8 }).map((_, rowIndex) => (
+              <div key={rowIndex} className="friction-heatmap-row">
+                {Array.from({ length: 12 }).map((_, colIndex) => {
+                  const intensity = Math.random()
+                  return (
                     <div 
                       key={colIndex} 
                       className="friction-heatmap-cell"
@@ -424,40 +473,40 @@ const FrictionEngine = () => {
                         background: intensity > 0.7 ? '#EF4444' : intensity > 0.4 ? '#F59E0B' : '#22C55E'
                       }}
                     />
-                  ))}
-                </div>
-              ))}
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+          <div className="friction-heatmap-legend">
+            <span>Low</span>
+            <div className="friction-heatmap-gradient">
+              <span style={{ background: '#22C55E' }} />
+              <span style={{ background: '#F59E0B' }} />
+              <span style={{ background: '#EF4444' }} />
             </div>
-            <div className="friction-heatmap-legend">
-              <span>Low</span>
-              <div className="friction-heatmap-gradient">
-                <span style={{ background: '#22C55E' }} />
-                <span style={{ background: '#F59E0B' }} />
-                <span style={{ background: '#EF4444' }} />
-              </div>
-              <span>High</span>
+            <span>High</span>
+          </div>
+          <div className="friction-heatmap-stats">
+            <div className="friction-heatmap-stat">
+              <span>Total</span>
+              <strong>{frictionScore}/100</strong>
             </div>
-            <div className="friction-heatmap-stats">
-              <div className="friction-heatmap-stat">
-                <span>Total</span>
-                <strong>{frictionScore}/100</strong>
-              </div>
-              <div className="friction-heatmap-stat">
-                <span>Cognitive Load</span>
-                <strong>42</strong>
-              </div>
-              <div className="friction-heatmap-stat">
-                <span>Navigation Issues</span>
-                <strong>28</strong>
-              </div>
-              <div className="friction-heatmap-stat">
-                <span>Interaction Complexity</span>
-                <strong>18</strong>
-              </div>
-              <div className="friction-heatmap-stat">
-                <span>Visual Clarity</span>
-                <strong>12</strong>
-              </div>
+            <div className="friction-heatmap-stat">
+              <span>Cognitive Load</span>
+              <strong>42</strong>
+            </div>
+            <div className="friction-heatmap-stat">
+              <span>Navigation Issues</span>
+              <strong>28</strong>
+            </div>
+            <div className="friction-heatmap-stat">
+              <span>Interaction Complexity</span>
+              <strong>18</strong>
+            </div>
+            <div className="friction-heatmap-stat">
+              <span>Visual Clarity</span>
+              <strong>12</strong>
             </div>
           </div>
         </div>
