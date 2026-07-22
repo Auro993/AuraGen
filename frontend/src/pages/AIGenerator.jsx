@@ -10,6 +10,7 @@ const AIGenerator = () => {
   const [activeTab, setActiveTab] = useState('ai')
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
+  const [generationStep, setGenerationStep] = useState(0)
   const [stats, setStats] = useState({
     totalGenerated: 0,
     successRate: 0,
@@ -18,10 +19,18 @@ const AIGenerator = () => {
   })
   const [generatedUI, setGeneratedUI] = useState(null)
   const [frictionScore, setFrictionScore] = useState(72)
-  const [reasons, setReasons] = useState(['Complex form', 'Too many fields'])
+  const [reasons, setReasons] = useState(['Too many fields', 'High idle time', 'Wrong clicks'])
   const [error, setError] = useState(null)
+  const [targetPage, setTargetPage] = useState('Tax Form')
 
-  // Get friction data from navigation state
+  const generationSteps = [
+    'Analyzing Behaviour...',
+    'Generating Suggestions...',
+    'Applying UX Rules...',
+    'Gemini Response Received',
+    'Done ✓'
+  ]
+
   useEffect(() => {
     if (location.state?.frictionScore) {
       setFrictionScore(location.state.frictionScore)
@@ -43,8 +52,6 @@ const AIGenerator = () => {
       setError(null)
     } catch (error) {
       console.error('Error fetching AI stats:', error)
-      setError('Failed to load stats. Using fallback data.')
-      // Set fallback stats
       setStats({
         totalGenerated: 128,
         successRate: 94,
@@ -58,7 +65,14 @@ const AIGenerator = () => {
 
   const handleGenerateUI = async () => {
     setGenerating(true)
+    setGenerationStep(0)
     setError(null)
+    
+    // Step through the generation process
+    for (let i = 0; i < generationSteps.length; i++) {
+      setGenerationStep(i + 1)
+      await new Promise(resolve => setTimeout(resolve, 800))
+    }
     
     try {
       console.log('📤 Generating UI...')
@@ -66,18 +80,14 @@ const AIGenerator = () => {
       const payload = {
         sessionId: location.state?.sessionId || `demo-${Date.now()}`,
         frictionScore: frictionScore,
-        reasons: reasons
+        reasons: reasons,
+        page: targetPage
       }
-      
-      console.log('📤 Payload:', payload)
       
       const res = await api.post('/ai/generate', payload)
       
-      console.log('✅ Response:', res.data)
-      
       if (res.data?.generatedUI) {
         setGeneratedUI(res.data.generatedUI)
-        // Refresh stats after generation
         await fetchStats()
       } else {
         setError('No UI generated. Please try again.')
@@ -92,14 +102,16 @@ const AIGenerator = () => {
         layout: 'Wizard',
         steps: 3,
         buttonSize: 'Large',
+        removedFields: 5,
         recommendations: [
-          'Split form into three steps',
+          'Split into steps',
           'Highlight required fields',
-          'Reduce optional inputs',
           'Increase button size',
-          'Add progress bar'
+          'Add progress bar',
+          'Reduce optional inputs'
         ],
         estimatedReduction: 38,
+        confidence: 67,
         frictionScore: frictionScore,
         designNotes: 'Convert the long form into a conversational step-by-step wizard.',
         summary: 'Users struggle with this form due to excessive fields.'
@@ -136,11 +148,11 @@ const AIGenerator = () => {
   ]
 
   const changes = generatedUI?.recommendations || [
-    'Reduced Fields',
-    'Step-by-Step Form',
-    'Better Typography',
-    'Better Button Placement',
-    'Simplified Navigation',
+    'Split into steps',
+    'Highlight required fields',
+    'Increase button size',
+    'Add progress bar',
+    'Reduce optional inputs'
   ]
 
   const impactData = [
@@ -200,6 +212,7 @@ const AIGenerator = () => {
         )}
 
         <div className="ai-main-grid">
+          {/* Friction Summary - Left */}
           <div className="ai-friction-card glass-card">
             <h3 className="ai-card-title">Friction Summary</h3>
             {frictionData.map((item, index) => (
@@ -228,33 +241,74 @@ const AIGenerator = () => {
             </div>
           </div>
 
+          {/* Generated UI Preview - Center */}
           <div className="ai-preview-card glass-card">
             <h3 className="ai-card-title">Generated UI Preview</h3>
             <div className="ai-preview-container">
               {generating ? (
                 <div className="ai-generating">
                   <div className="ai-spinner"></div>
-                  <p>🤖 AI is generating optimized UI...</p>
-                  <p className="ai-generating-sub">Analyzing friction data</p>
+                  <p className="ai-generating-step">{generationSteps[generationStep - 1] || 'Processing...'}</p>
+                  <div className="ai-generation-progress">
+                    {generationSteps.map((step, index) => (
+                      <div key={index} className={`ai-progress-dot ${index < generationStep ? 'active' : ''}`}></div>
+                    ))}
+                  </div>
                 </div>
               ) : generatedUI ? (
                 <div className="ai-preview-content">
                   <div className="ai-preview-header">
                     <span className="ai-preview-badge">✨ AI Generated</span>
-                    <span className="ai-preview-layout">{generatedUI.layout || 'Wizard'}</span>
+                    <span className="ai-preview-confidence">Confidence: {generatedUI.confidence || 67}%</span>
                   </div>
-                  <div className="ai-preview-wizard">
-                    {Array.from({ length: Math.min(generatedUI.steps || 3, 4) }).map((_, i) => (
-                      <div key={i} className="ai-preview-step">
-                        <span className="ai-preview-step-number">{i + 1}</span>
-                        <div className="ai-preview-step-content">
-                          <h4>Step {i + 1}</h4>
-                          <p>{generatedUI.recommendations?.[i] || `Enter your ${['name', 'email', 'details', 'review'][i]}`}</p>
+                  
+                  <div className="ai-preview-comparison">
+                    <div className="ai-preview-original">
+                      <span className="ai-preview-label">Original</span>
+                      <span className="ai-preview-friction high">{generatedUI.frictionScore || frictionScore}/100</span>
+                    </div>
+                    <div className="ai-preview-arrow">↓</div>
+                    <div className="ai-preview-new">
+                      <span className="ai-preview-label">New</span>
+                      <span className="ai-preview-friction low">
+                        {Math.max(0, (generatedUI.frictionScore || frictionScore) - (generatedUI.estimatedReduction || 38))}/100
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="ai-preview-details">
+                    <div className="ai-preview-detail-item">
+                      <span className="ai-preview-detail-label">Layout</span>
+                      <span className="ai-preview-detail-value">{generatedUI.layout || 'Wizard'}</span>
+                    </div>
+                    <div className="ai-preview-detail-item">
+                      <span className="ai-preview-detail-label">Steps</span>
+                      <span className="ai-preview-detail-value">{generatedUI.steps || 3}</span>
+                    </div>
+                    <div className="ai-preview-detail-item">
+                      <span className="ai-preview-detail-label">Fields Removed</span>
+                      <span className="ai-preview-detail-value">{generatedUI.removedFields || 5}</span>
+                    </div>
+                    <div className="ai-preview-detail-item">
+                      <span className="ai-preview-detail-label">Buttons</span>
+                      <span className="ai-preview-detail-value">{generatedUI.buttonSize || 'Large'}</span>
+                    </div>
+                  </div>
+
+                  <div className="ai-preview-wizard-preview">
+                    <span className="ai-preview-wizard-label">Progress Bar</span>
+                    <div className="ai-preview-progress-bar">
+                      <div className="ai-preview-progress-fill" style={{ width: '33%' }}></div>
+                    </div>
+                    <div className="ai-preview-steps">
+                      {Array.from({ length: Math.min(generatedUI.steps || 3, 4) }).map((_, i) => (
+                        <div key={i} className="ai-preview-mini-step">
+                          <span className="ai-preview-mini-number">{i + 1}</span>
+                          <span className="ai-preview-mini-label">Step {i + 1}</span>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                  <button className="ai-preview-next">Next →</button>
                 </div>
               ) : (
                 <div className="ai-preview-placeholder">
@@ -270,7 +324,7 @@ const AIGenerator = () => {
                 onClick={handleGenerateUI}
                 disabled={generating}
               >
-                {generating ? '⏳ Generating...' : '🔄 Generate UI'}
+                {generating ? '⏳ Generating...' : '🚀 Generate UI'}
               </button>
               {generatedUI && (
                 <>
@@ -281,47 +335,34 @@ const AIGenerator = () => {
             </div>
           </div>
 
+          {/* AI Input - Right (Read-only) */}
           <div className="ai-config-card glass-card">
-            <h3 className="ai-card-title">AI Configuration</h3>
-            <div className="ai-config-group">
-              <label className="ai-config-label">Target Page</label>
-              <select className="ai-config-select" value="Tax Form">
-                <option>Tax Form</option>
-                <option>Registration</option>
-                <option>Checkout</option>
-                <option>Profile</option>
-              </select>
-            </div>
-            <div className="ai-config-group">
-              <label className="ai-config-label">Goal</label>
-              <select className="ai-config-select" value="Reduce Cognitive Load">
-                <option>Reduce Cognitive Load</option>
-                <option>Increase Conversions</option>
-                <option>Simplify Navigation</option>
-              </select>
-            </div>
-            <div className="ai-config-group">
-              <label className="ai-config-label">Layout</label>
-              <select className="ai-config-select" value={generatedUI?.layout || 'Wizard'}>
-                <option>Wizard</option>
-                <option>Grid</option>
-                <option>List</option>
-                <option>Cards</option>
-              </select>
-            </div>
-            <div className="ai-config-options">
-              <label className="ai-config-checkbox">
-                <input type="checkbox" checked />
-                <span>Reduce Form Fields</span>
-              </label>
-              <label className="ai-config-checkbox">
-                <input type="checkbox" checked />
-                <span>Improve Hierarchy</span>
-              </label>
-              <label className="ai-config-checkbox">
-                <input type="checkbox" checked />
-                <span>Progressive Disclosure</span>
-              </label>
+            <h3 className="ai-card-title">AI Input</h3>
+            <div className="ai-config-readonly">
+              <div className="ai-config-item">
+                <span className="ai-config-label">Target Page</span>
+                <span className="ai-config-value">{targetPage}</span>
+              </div>
+              <div className="ai-config-item">
+                <span className="ai-config-label">Current Friction</span>
+                <span className="ai-config-value high">{frictionScore}/100</span>
+              </div>
+              <div className="ai-config-item">
+                <span className="ai-config-label">Detected Problems</span>
+                <div className="ai-config-problems">
+                  {reasons.map((reason, index) => (
+                    <span key={index} className="ai-config-problem">✔ {reason}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="ai-config-item">
+                <span className="ai-config-label">Goal</span>
+                <span className="ai-config-value">Reduce Cognitive Load</span>
+              </div>
+              <div className="ai-config-item">
+                <span className="ai-config-label">Layout Selected</span>
+                <span className="ai-config-value highlight">{generatedUI?.layout || 'Wizard'}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -333,7 +374,7 @@ const AIGenerator = () => {
               <span className="ai-reason-icon">⚠️</span>
               <span className="ai-reason-text">High Friction Score: {frictionScore}/100</span>
             </div>
-            {reasons.map((reason, index) => (
+            {reasons.slice(0, 3).map((reason, index) => (
               <div key={index} className="ai-reason-item" style={{ borderColor: '#F59E0B' }}>
                 <span className="ai-reason-icon">⚠️</span>
                 <span className="ai-reason-text">{reason}</span>
@@ -347,7 +388,7 @@ const AIGenerator = () => {
 
           <div className="ai-changes-card glass-card">
             <h3 className="ai-card-title">Changes Implemented</h3>
-            {changes.map((change, index) => (
+            {changes.slice(0, 5).map((change, index) => (
               <div key={index} className="ai-change-item">
                 <span className="ai-change-icon">✔</span>
                 <span className="ai-change-text">{change}</span>

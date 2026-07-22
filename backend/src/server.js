@@ -125,6 +125,15 @@ try {
   console.error('❌ AI Generator routes error:', error.message);
 }
 
+// Generated UI routes
+try {
+  const generatedUIRoutes = require('./routes/generatedUIRoutes');
+  app.use('/api/generated-ui', generatedUIRoutes);
+  console.log('✅ Generated UI routes loaded');
+} catch (error) {
+  console.error('❌ Generated UI routes error:', error.message);
+}
+
 // UI routes
 try {
   app.use('/api/ui', require('./routes/ui'));

@@ -9,13 +9,17 @@ const generatedUISchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
-  frictionScore: {
-    type: Number,
-    required: true
-  },
   page: {
     type: String,
     default: 'Tax Form'
+  },
+  originalScore: {
+    type: Number,
+    default: 72
+  },
+  optimizedScore: {
+    type: Number,
+    default: 38
   },
   layout: {
     type: String,
@@ -34,22 +38,44 @@ const generatedUISchema = new mongoose.Schema({
   recommendations: [{
     type: String
   }],
-  estimatedReduction: {
+  removedFields: {
     type: Number,
-    default: 0
+    default: 5
+  },
+  estimatedImpact: {
+    taskSuccess: { type: Number, default: 27 },
+    completionTime: { type: Number, default: -32 },
+    errorRate: { type: Number, default: -41 },
+    satisfaction: { type: Number, default: 31 },
+    frictionReduced: { type: Number, default: 38 }
+  },
+  reasons: [{
+    type: String
+  }],
+  model: {
+    type: String,
+    default: 'Gemini 2.5 Flash'
+  },
+  generationTime: {
+    type: String,
+    default: '2.48 sec'
+  },
+  confidence: {
+    type: Number,
+    default: 67
   },
   status: {
     type: String,
     enum: ['generated', 'applied', 'rejected'],
     default: 'generated'
   },
-  prompt: {
+  designNotes: {
     type: String,
     default: ''
   },
-  geminiResponse: {
-    type: Object,
-    default: {}
+  summary: {
+    type: String,
+    default: ''
   },
   createdAt: {
     type: Date,
