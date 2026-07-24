@@ -1,5 +1,8 @@
+// frontend/src/pages/GeneratedUI.jsx
+
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 import Sidebar from '../components/Dashboard/Sidebar'
 import api from '../services/api'
 import './GeneratedUI.css'
@@ -10,6 +13,8 @@ const GeneratedUI = () => {
   const [activeTab, setActiveTab] = useState('generated')
   const [loading, setLoading] = useState(true)
   const [generatedUI, setGeneratedUI] = useState(null)
+  const [currentStep, setCurrentStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [stats, setStats] = useState({
     totalGenerated: 35,
     applied: 12,
@@ -18,7 +23,11 @@ const GeneratedUI = () => {
     userSatisfaction: 92
   })
   const [allGenerated, setAllGenerated] = useState([])
-  const [formData, setFormData] = useState({})
+  const [formData, setFormData] = useState({
+    step1: '',
+    step2: '',
+    step3: ''
+  })
 
   useEffect(() => {
     if (location.state?.generatedUI) {
@@ -91,14 +100,73 @@ const GeneratedUI = () => {
     try {
       await api.post(`/generated-ui/apply/${generatedUI.id}`)
       setGeneratedUI({ ...generatedUI, status: 'applied' })
+      toast.success('UI applied successfully! 🎉')
       fetchData()
     } catch (error) {
       console.error('Error applying UI:', error)
+      toast.error('Failed to apply UI')
     }
   }
 
   const handleInputChange = (step, value) => {
     setFormData({ ...formData, [step]: value })
+  }
+
+  // ✅ FIX: Validate current step
+  const isStepValid = () => {
+    const stepKey = `step${currentStep}`
+    return formData[stepKey]?.trim() !== ''
+  }
+
+  // ✅ FIX: Handle continue button click
+  const handleContinue = async () => {
+    // Validate current step
+    if (!isStepValid()) {
+      toast.error(`Please fill in Step ${currentStep} before continuing`)
+      return
+    }
+
+    if (currentStep < 3) {
+      // Move to next step
+      setCurrentStep(currentStep + 1)
+      toast.success(`Step ${currentStep + 1} unlocked! 🎯`)
+    } else {
+      // Submit the form
+      await handleSubmit()
+    }
+  }
+
+  // ✅ FIX: Handle form submission
+  const handleSubmit = async () => {
+    setIsSubmitting(true)
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // Here you would send the data to your backend
+      const payload = {
+        formData: formData,
+        generatedUIId: generatedUI?.id
+      }
+      
+      // Uncomment when API is ready
+      // await api.post('/ui/submit', payload)
+      
+      toast.success('Form submitted successfully! 🎉')
+      navigate('/dashboard')
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      toast.error('Failed to submit form')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // ✅ FIX: Handle going back a step
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
   }
 
   const statCards = [
@@ -141,11 +209,30 @@ const GeneratedUI = () => {
   ]
 
   const wizardFields = [
-    { label: 'Name', placeholder: 'Enter your full name' },
-    { label: 'Email', placeholder: 'Enter your email address' },
-    { label: 'Phone', placeholder: 'Enter your phone number' },
-    { label: 'PAN', placeholder: 'Enter your PAN number' },
-    { label: 'Income', placeholder: 'Enter your annual income' }
+    { 
+      step: 1,
+      title: 'Personal Information',
+      fields: [
+        { label: 'Full Name', placeholder: 'Enter your full name', key: 'fullName' },
+        { label: 'Email Address', placeholder: 'Enter your email', key: 'email', type: 'email' }
+      ]
+    },
+    { 
+      step: 2,
+      title: 'Contact Details',
+      fields: [
+        { label: 'Phone Number', placeholder: 'Enter your phone', key: 'phone', type: 'tel' },
+        { label: 'PAN Number', placeholder: 'Enter PAN', key: 'pan' }
+      ]
+    },
+    { 
+      step: 3,
+      title: 'Financial Information',
+      fields: [
+        { label: 'Annual Income', placeholder: 'Enter income', key: 'income', type: 'number' },
+        { label: 'Investments', placeholder: 'Enter investments', key: 'investments', type: 'number' }
+      ]
+    }
   ]
 
   const recentData = allGenerated.slice(0, 5).map(item => ({
@@ -176,6 +263,9 @@ const GeneratedUI = () => {
       </div>
     )
   }
+
+  // Get current step fields
+  const currentStepData = wizardFields[currentStep - 1]
 
   return (
     <div className="generated-page">
@@ -269,31 +359,67 @@ const GeneratedUI = () => {
                   <span className="generated-wizard-fields">-{generatedUI?.removedFields || 5} Fields</span>
                 </div>
                 
-                {Array.from({ length: Math.min(generatedUI?.steps || 3, 3) }).map((_, i) => (
-                  <div key={i} className="generated-wizard-step">
-                    <span className="generated-wizard-number">{i + 1}</span>
-                    <div className="generated-wizard-content">
-                      <h4>Step {i + 1}</h4>
-                      <p>{generatedUI?.recommendations?.[i] || `Enter your ${['name', 'email', 'details'][i]}`}</p>
-                      <input 
-                        type="text" 
-                        placeholder={wizardFields[i]?.placeholder || `Enter ${['name', 'email', 'details'][i]}`}
-                        className="generated-wizard-input"
-                        value={formData[`step${i + 1}`] || ''}
-                        onChange={(e) => handleInputChange(`step${i + 1}`, e.target.value)}
-                      />
+                {/* Step Progress Indicator */}
+                <div className="generated-step-indicators">
+                  {[1, 2, 3].map((step) => (
+                    <div 
+                      key={step}
+                      className={`generated-step-dot ${step === currentStep ? 'active' : ''} ${step < currentStep ? 'completed' : ''}`}
+                      onClick={() => step < currentStep && setCurrentStep(step)}
+                    >
+                      {step < currentStep ? '✓' : step}
                     </div>
-                  </div>
-                ))}
-                
-                <div className="generated-wizard-progress">
-                  <span>Progress</span>
-                  <div className="generated-progress-bar">
-                    <div className="generated-progress-fill" style={{ width: '33%' }}></div>
+                  ))}
+                </div>
+
+                {/* Current Step Content */}
+                <div className="generated-wizard-step active">
+                  <div className="generated-wizard-number">{currentStep}</div>
+                  <div className="generated-wizard-content">
+                    <h4>Step {currentStep}: {currentStepData?.title}</h4>
+                    {currentStepData?.fields.map((field, idx) => (
+                      <div key={idx} className="generated-wizard-field">
+                        <label>{field.label}</label>
+                        <input 
+                          type={field.type || 'text'}
+                          placeholder={field.placeholder}
+                          className="generated-wizard-input"
+                          value={formData[`step${currentStep}`] || ''}
+                          onChange={(e) => handleInputChange(`step${currentStep}`, e.target.value)}
+                          required
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <button className="generated-wizard-next">Continue →</button>
+                
+                {/* Progress Bar */}
+                <div className="generated-wizard-progress">
+                  <span>Progress {Math.round((currentStep / 3) * 100)}%</span>
+                  <div className="generated-progress-bar">
+                    <div className="generated-progress-fill" style={{ width: `${(currentStep / 3) * 100}%` }}></div>
+                  </div>
+                </div>
+
+                {/* Navigation Buttons */}
+                <div className="generated-wizard-nav">
+                  <button 
+                    className={`generated-wizard-back ${currentStep === 1 ? 'disabled' : ''}`}
+                    onClick={handleBack}
+                    disabled={currentStep === 1}
+                  >
+                    ← Back
+                  </button>
+                  <button 
+                    className={`generated-wizard-next ${!isStepValid() || isSubmitting ? 'disabled' : ''}`}
+                    onClick={handleContinue}
+                    disabled={!isStepValid() || isSubmitting}
+                  >
+                    {isSubmitting ? 'Submitting...' : currentStep === 3 ? 'Submit ✓' : 'Continue →'}
+                  </button>
+                </div>
               </div>
+
               <div className="generated-compare-bottom">
                 <div className="generated-improvements">
                   <span className="generated-improvements-title">Improvements</span>

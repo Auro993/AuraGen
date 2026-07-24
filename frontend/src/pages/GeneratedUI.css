@@ -1393,3 +1393,141 @@
     font-size: 11px;
   }
 }
+/* frontend/src/pages/GeneratedUI.css - Add these styles */
+
+/* Step Indicators */
+.generated-step-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 15px 0 20px 0;
+}
+
+.generated-step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.generated-step-dot.active {
+  background: #7C5CFF;
+  border-color: #7C5CFF;
+  color: white;
+  box-shadow: 0 0 20px rgba(124, 92, 255, 0.3);
+}
+
+.generated-step-dot.completed {
+  background: #22C55E;
+  border-color: #22C55E;
+  color: white;
+}
+
+.generated-step-dot:hover {
+  transform: scale(1.1);
+}
+
+/* Wizard Field */
+.generated-wizard-field {
+  margin-bottom: 12px;
+}
+
+.generated-wizard-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 4px;
+}
+
+/* Navigation */
+.generated-wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.generated-wizard-back,
+.generated-wizard-next {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.generated-wizard-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.generated-wizard-back:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.generated-wizard-back.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.generated-wizard-next {
+  background: linear-gradient(135deg, #7C5CFF, #5C3CFF);
+  color: white;
+  box-shadow: 0 4px 15px rgba(124, 92, 255, 0.3);
+}
+
+.generated-wizard-next:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(124, 92, 255, 0.4);
+}
+
+.generated-wizard-next.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.generated-wizard-next:active:not(.disabled) {
+  transform: scale(0.98);
+}
+
+/* Toast notifications - Make sure react-hot-toast is installed */
+.toast-container {
+  z-index: 9999;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .generated-wizard-nav {
+    flex-direction: column;
+  }
+  
+  .generated-wizard-back,
+  .generated-wizard-next {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .generated-step-indicators {
+    gap: 8px;
+  }
+  
+  .generated-step-dot {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}
