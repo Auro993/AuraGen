@@ -684,3 +684,72 @@
     padding: 6px 8px;
   }
 }
+/* frontend/src/pages/FrictionEngine.css - Add these styles */
+
+.friction-breakdown-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.friction-breakdown-desc {
+  font-size: 11px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+.friction-breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.friction-breakdown-item:last-child {
+  border-bottom: none;
+}
+
+.friction-breakdown-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.friction-breakdown-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.friction-breakdown-value {
+  font-size: 18px;
+  font-weight: 700;
+  min-width: 30px;
+}
+
+.friction-breakdown-contribution {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 40px;
+}
+
+.friction-breakdown-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  margin-top: 15px;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.friction-breakdown-total-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.friction-breakdown-total-value {
+  font-size: 24px;
+  font-weight: 800;
+}
