@@ -1,22 +1,30 @@
-/* Architecture Page */
+/* frontend/src/pages/Architecture.css */
+
+/* ============ PAGE LAYOUT ============ */
 .architecture-page {
   min-height: 100vh;
   background: #050816;
 }
 
-/* Hero Section */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ============ HERO SECTION ============ */
 .arch-hero {
-  padding: 140px 0 50px;
+  padding: 140px 0 60px;
   text-align: center;
-  background: linear-gradient(135deg, rgba(124, 92, 255, 0.05), rgba(79, 140, 255, 0.05));
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, rgba(124, 92, 255, 0.05) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .arch-title {
   font-size: 48px;
   font-weight: 800;
-  margin-bottom: 8px;
-  background: linear-gradient(135deg, #fff 60%, #9B7BFF);
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #FFFFFF 30%, #9B7BFF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -26,72 +34,137 @@
   color: #9CA3AF;
 }
 
-/* Architecture Flow Container */
-.arch-flow-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 50px 30px;
-  max-width: 650px;
-  margin: 40px auto;
-  background: rgba(17, 24, 39, 0.2);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* ============ CONTENT ============ */
+.arch-content {
+  padding: 50px 0 60px;
 }
 
+/* ============ FLOW CONTAINER ============ */
+.arch-flow-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px;
+  background: rgba(17, 24, 39, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 20px;
+}
+
+/* ============ LAYER ============ */
+.arch-layer {
+  margin-bottom: 40px;
+}
+
+.arch-layer:last-child {
+  margin-bottom: 0;
+}
+
+.arch-layer-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.arch-layer-icon {
+  font-size: 24px;
+}
+
+.arch-layer-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.arch-layer-line {
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  opacity: 0.3;
+}
+
+.arch-layer-nodes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 20px;
+}
+
+/* ============ NODE WRAPPER ============ */
 .arch-node-wrapper {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  width: 100%;
+  gap: 16px;
 }
 
-/* Architecture Node */
+/* ============ NODE ============ */
 .arch-node {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 18px 24px;
+  padding: 16px 20px;
   background: rgba(17, 24, 39, 0.85);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  width: 100%;
-  max-width: 480px;
-  transition: all 0.3s ease;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  flex: 1;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: default;
+  min-height: 64px;
   position: relative;
 }
 
 .arch-node:hover {
-  transform: translateX(8px);
-  border-color: rgba(124, 92, 255, 0.3);
-  box-shadow: 0 4px 30px rgba(124, 92, 255, 0.1);
+  transform: translateX(6px);
+  border-color: rgba(124, 92, 255, 0.25);
+  box-shadow: 0 4px 24px rgba(124, 92, 255, 0.08);
+}
+
+.arch-node.active {
+  border-color: rgba(124, 92, 255, 0.35);
+  box-shadow: 0 4px 30px rgba(124, 92, 255, 0.15);
+  background: rgba(124, 92, 255, 0.06);
 }
 
 .arch-node-left {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 60px;
+  min-width: 56px;
 }
 
 .arch-node-color-bar {
-  width: 4px;
-  height: 36px;
+  width: 3px;
+  height: 32px;
   border-radius: 4px;
   opacity: 0.7;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.arch-node:hover .arch-node-color-bar {
+.arch-node.active .arch-node-color-bar {
   opacity: 1;
+  height: 40px;
+}
+
+.arch-node-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.arch-node.active .arch-node-icon-wrapper {
+  background: rgba(124, 92, 255, 0.12);
 }
 
 .arch-node-icon {
-  font-size: 22px;
-  min-width: 32px;
-  text-align: center;
+  font-size: 20px;
 }
 
 .arch-node-content {
@@ -102,249 +175,352 @@
 }
 
 .arch-node-label {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: white;
-  line-height: 1.4;
+  color: #FFFFFF;
+  line-height: 1.3;
 }
 
 .arch-node-sublabel {
-  font-size: 13px;
+  font-size: 12px;
   color: #9CA3AF;
   font-weight: 400;
 }
 
-/* Arrow */
+.arch-node-description {
+  font-size: 12px;
+  color: #7C5CFF;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(124, 92, 255, 0.1);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============ ARROW ============ */
 .arch-arrow {
-  padding: 10px 0;
   color: #4B5563;
+  padding: 0 6px;
+  flex-shrink: 0;
 }
 
 .arch-arrow svg {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
+  transform: rotate(90deg);
 }
 
-/* Responsive - Desktop Horizontal */
-@media (min-width: 1024px) {
+/* ============ LAYER DIVIDER ============ */
+.arch-layer-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0 20px 20px;
+}
+
+.arch-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+}
+
+.arch-divider-icon {
+  font-size: 20px;
+  color: #4B5563;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+/* ============ LEGEND ============ */
+.arch-legend {
+  margin-top: 50px;
+  padding: 24px 30px;
+  background: rgba(17, 24, 39, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.arch-legend-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9CA3AF;
+  margin-bottom: 14px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.arch-legend-items {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.arch-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.arch-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.arch-legend-label {
+  font-size: 13px;
+  color: #D1D5DB;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1024px) {
   .arch-flow-container {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    max-width: 1000px;
-    padding: 40px 30px;
-    gap: 0;
+    padding: 30px 24px;
+    margin: 0 16px;
   }
-
-  .arch-node-wrapper {
-    width: auto;
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .arch-node {
-    max-width: 220px;
-    padding: 14px 18px;
-    min-height: 70px;
-  }
-
-  .arch-node-label {
-    font-size: 14px;
-  }
-
-  .arch-node-sublabel {
-    font-size: 11px;
-  }
-
-  .arch-node-icon {
-    font-size: 18px;
-    min-width: 28px;
-  }
-
-  .arch-node-left {
-    min-width: 44px;
-    gap: 8px;
-  }
-
-  .arch-node-color-bar {
-    height: 28px;
-  }
-
-  .arch-arrow {
-    padding: 0 6px;
-  }
-
-  .arch-arrow svg {
-    transform: rotate(90deg);
-    width: 18px;
-    height: 18px;
+  
+  .arch-layer-nodes {
+    padding-left: 12px;
   }
 }
 
-/* Responsive - Tablet */
-@media (max-width: 1024px) and (min-width: 768px) {
-  .arch-flow-container {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    max-width: 800px;
-    padding: 30px 20px;
-    gap: 0;
-  }
-
-  .arch-node-wrapper {
-    width: auto;
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .arch-node {
-    max-width: 200px;
-    padding: 12px 16px;
-    min-height: 65px;
-  }
-
-  .arch-node-label {
-    font-size: 13px;
-  }
-
-  .arch-node-sublabel {
-    font-size: 10px;
-  }
-
-  .arch-node-icon {
-    font-size: 16px;
-    min-width: 24px;
-  }
-
-  .arch-node-left {
-    min-width: 38px;
-    gap: 6px;
-  }
-
-  .arch-node-color-bar {
-    height: 24px;
-  }
-
-  .arch-arrow {
-    padding: 0 4px;
-  }
-
-  .arch-arrow svg {
-    transform: rotate(90deg);
-    width: 16px;
-    height: 16px;
-  }
-}
-
-/* Responsive - Mobile */
 @media (max-width: 768px) {
+  .arch-hero {
+    padding: 120px 0 40px;
+  }
+  
   .arch-title {
     font-size: 32px;
   }
-
+  
   .arch-subtitle {
     font-size: 15px;
   }
-
+  
+  .arch-content {
+    padding: 30px 0 40px;
+  }
+  
   .arch-flow-container {
-    flex-direction: column;
     padding: 24px 16px;
-    max-width: 100%;
-    margin: 20px 12px;
+    margin: 0 8px;
+    border-radius: 14px;
   }
-
-  .arch-node-wrapper {
-    width: 100%;
+  
+  .arch-layer {
+    margin-bottom: 30px;
   }
-
-  .arch-node {
-    max-width: 100%;
-    padding: 16px 20px;
+  
+  .arch-layer-header {
+    margin-bottom: 16px;
+    padding-bottom: 10px;
   }
-
-  .arch-node-label {
-    font-size: 15px;
+  
+  .arch-layer-name {
+    font-size: 16px;
   }
-
-  .arch-node-sublabel {
-    font-size: 12px;
-  }
-
-  .arch-node-icon {
-    font-size: 20px;
-    min-width: 30px;
-  }
-
-  .arch-node-left {
-    min-width: 54px;
+  
+  .arch-layer-nodes {
+    padding-left: 8px;
     gap: 10px;
   }
-
-  .arch-node-color-bar {
+  
+  .arch-node {
+    padding: 14px 16px;
+    min-height: 56px;
+  }
+  
+  .arch-node-left {
+    min-width: 44px;
+    gap: 10px;
+  }
+  
+  .arch-node-icon-wrapper {
+    width: 32px;
     height: 32px;
   }
-
-  .arch-arrow {
-    padding: 8px 0;
+  
+  .arch-node-icon {
+    font-size: 18px;
   }
-
+  
+  .arch-node-color-bar {
+    height: 28px;
+  }
+  
+  .arch-node-label {
+    font-size: 14px;
+  }
+  
+  .arch-node-sublabel {
+    font-size: 11px;
+  }
+  
+  .arch-arrow {
+    padding: 0 4px;
+  }
+  
   .arch-arrow svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .arch-legend {
+    padding: 18px 20px;
+    margin: 30px 16px 0;
+  }
+  
+  .arch-legend-items {
+    gap: 16px;
+  }
+  
+  .arch-legend-label {
+    font-size: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .arch-hero {
-    padding: 120px 0 30px;
+    padding: 100px 0 30px;
   }
-
+  
   .arch-title {
-    font-size: 28px;
+    font-size: 26px;
   }
-
+  
   .arch-subtitle {
     font-size: 14px;
   }
-
+  
   .arch-flow-container {
     padding: 16px 12px;
-    margin: 16px 8px;
+    margin: 0 4px;
+    border-radius: 12px;
   }
-
-  .arch-node {
-    padding: 14px 16px;
+  
+  .arch-layer {
+    margin-bottom: 24px;
   }
-
-  .arch-node-label {
+  
+  .arch-layer-header {
+    margin-bottom: 12px;
+  }
+  
+  .arch-layer-icon {
+    font-size: 20px;
+  }
+  
+  .arch-layer-name {
     font-size: 14px;
   }
-
-  .arch-node-sublabel {
-    font-size: 11px;
-  }
-
-  .arch-node-icon {
-    font-size: 18px;
-    min-width: 26px;
-  }
-
-  .arch-node-left {
-    min-width: 44px;
+  
+  .arch-layer-nodes {
+    padding-left: 4px;
     gap: 8px;
   }
-
-  .arch-node-color-bar {
+  
+  .arch-node {
+    padding: 12px 14px;
+    min-height: 48px;
+    gap: 12px;
+  }
+  
+  .arch-node-left {
+    min-width: 36px;
+    gap: 8px;
+  }
+  
+  .arch-node-icon-wrapper {
+    width: 28px;
     height: 28px;
   }
-
-  .arch-arrow {
-    padding: 6px 0;
+  
+  .arch-node-icon {
+    font-size: 16px;
   }
-
+  
+  .arch-node-color-bar {
+    height: 24px;
+    width: 2px;
+  }
+  
+  .arch-node-label {
+    font-size: 13px;
+  }
+  
+  .arch-node-sublabel {
+    font-size: 10px;
+  }
+  
+  .arch-node-description {
+    font-size: 11px;
+  }
+  
+  .arch-node-wrapper {
+    gap: 8px;
+  }
+  
+  .arch-arrow {
+    padding: 0 2px;
+  }
+  
   .arch-arrow svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
+  }
+  
+  .arch-layer-divider {
+    padding: 8px 0 12px 4px;
+  }
+  
+  .arch-divider-icon {
+    font-size: 16px;
+  }
+  
+  .arch-legend {
+    padding: 14px 16px;
+    margin: 20px 8px 0;
+    border-radius: 10px;
+  }
+  
+  .arch-legend-title {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+  
+  .arch-legend-items {
+    gap: 12px;
+  }
+  
+  .arch-legend-dot {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .arch-legend-label {
+    font-size: 11px;
   }
 }
