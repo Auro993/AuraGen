@@ -18,102 +18,60 @@ const HelpDocs = () => {
     }
   }, [navigate])
 
-  // ✅ Navigation handlers
-  const handleNavigate = (path) => {
-    if (path.startsWith('#')) {
-      // Scroll to section
-      const element = document.querySelector(path)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-      }
-    } else {
-      navigate(path)
-    }
-  }
-
-  // ✅ Search handler
   const handleSearch = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       toast.success(`Searching for: "${searchQuery}"`)
-      // Implement search logic here
-      console.log('Searching for:', searchQuery)
     } else {
       toast.error('Please enter a search term')
     }
   }
 
-  // ✅ Contact Support handler
   const handleContactSupport = () => {
     toast.success('Opening support chat... 🎧')
-    // Navigate to contact page or open modal
     navigate('/contact')
   }
 
-  // ✅ Community handler
   const handleVisitCommunity = () => {
     toast.success('Redirecting to community... 👥')
-    // Navigate to community page or open external link
-    navigate('/community')
   }
 
-  // ✅ Submit Ticket handler
   const handleSubmitTicket = () => {
     toast.success('Opening ticket submission... 📩')
     navigate('/contact')
   }
 
-  // ✅ System Status handler
   const handleViewStatus = () => {
     toast.info('Loading system status... 📊')
-    navigate('/system-status')
   }
 
-  // ✅ Video Tutorial handler
   const handlePlayVideo = (title) => {
     toast.success(`Playing: ${title} 🎬`)
-    // Open video modal or navigate to video page
-    console.log('Playing video:', title)
   }
 
-  // ✅ Article click handler
   const handleArticleClick = (title) => {
     toast.info(`Loading article: ${title} 📄`)
-    console.log('Opening article:', title)
   }
 
-  // ✅ Quick link handler
-  const handleQuickLink = (label, path) => {
+  const handleQuickLink = (label) => {
     toast.info(`Navigating to: ${label}`)
-    if (path.startsWith('#')) {
-      const element = document.querySelector(path)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-      }
-    } else {
-      navigate(path)
-    }
   }
 
-  // ✅ Guide click handler
-  const handleGuideClick = (title, link) => {
+  const handleGuideClick = (title) => {
     toast.info(`Opening guide: ${title}`)
-    console.log('Opening guide:', title, link)
   }
 
-  // ✅ Tag click handler
   const handleTagClick = (tag) => {
     setSearchQuery(tag)
     toast.info(`Searching for: ${tag}`)
-    console.log('Tag clicked:', tag)
   }
 
   const quickLinks = [
-    { icon: '▶', label: 'Getting Started', path: '#getting-started' },
-    { icon: '▶', label: 'Video Tutorials', path: '#videos' },
-    { icon: '▶', label: 'API Documentation', path: '#api' },
-    { icon: '▶', label: 'Release Notes', path: '#releases' },
-    { icon: '▶', label: 'System Status', path: '#status' },
+    { icon: '🚀', label: 'Getting Started' },
+    { icon: '📹', label: 'Video Tutorials' },
+    { icon: '🔗', label: 'API Documentation' },
+    { icon: '📝', label: 'Release Notes' },
+    { icon: '📊', label: 'System Status' },
   ]
 
   const guides = [
@@ -121,35 +79,30 @@ const HelpDocs = () => {
       icon: '🚀',
       title: 'Getting Started',
       desc: 'Learn the basics of AuraGen and set up your first project.',
-      link: '#getting-started',
       btnText: 'Read Guide →'
     },
     {
       icon: '📊',
       title: 'Dashboard Overview',
       desc: 'Understand your dashboard and key metrics.',
-      link: '#dashboard',
       btnText: 'Read Guide →'
     },
     {
       icon: '🎯',
       title: 'Friction Engine',
       desc: 'Learn how friction is detected, calculated and visualized.',
-      link: '#friction',
       btnText: 'Read Guide →'
     },
     {
       icon: '🤖',
       title: 'AI Generator',
       desc: 'Generate simplified UIs using AI based on friction data.',
-      link: '#ai',
       btnText: 'Read Guide →'
     },
     {
       icon: '💻',
       title: 'API Documentation',
       desc: 'Integrate AuraGen with your apps using our API.',
-      link: '#api',
       btnText: 'Read Docs →'
     },
   ]
@@ -188,9 +141,9 @@ const HelpDocs = () => {
   ]
 
   const videos = [
-    { title: 'Friction Engine', duration: '5:24', icon: '▶' },
-    { title: 'AI Generator', duration: '8:15', icon: '▶' },
-    { title: 'Generated UI', duration: '6:47', icon: '▶' },
+    { title: 'Friction Engine Explained', duration: '5:24' },
+    { title: 'AI Generator Deep Dive', duration: '8:15' },
+    { title: 'UI Comparison Tool', duration: '6:47' },
   ]
 
   const whatsNew = [
@@ -222,7 +175,7 @@ const HelpDocs = () => {
           </div>
         </div>
 
-        {/* Hero Search Section */}
+        {/* Hero Section */}
         <div className="docs-hero glass-card">
           <div className="docs-hero-left">
             <h2 className="docs-hero-title">How can we help you today?</h2>
@@ -242,7 +195,6 @@ const HelpDocs = () => {
                   key={index} 
                   className="docs-hero-tag"
                   onClick={() => handleTagClick(tag)}
-                  style={{ cursor: 'pointer' }}
                 >
                   {tag}
                 </span>
@@ -256,28 +208,29 @@ const HelpDocs = () => {
 
         {/* Quick Links + System Status */}
         <div className="docs-top-grid">
-          {/* Quick Links */}
           <div className="docs-quick-links glass-card">
             <h3 className="docs-section-title">Quick Links</h3>
-            {quickLinks.map((link, index) => (
-              <div 
-                key={index} 
-                className="docs-quick-link"
-                onClick={() => handleQuickLink(link.label, link.path)}
-                style={{ cursor: 'pointer' }}
-              >
-                <span>{link.icon}</span>
-                <span>{link.label}</span>
-              </div>
-            ))}
+            <div className="docs-quick-links-grid">
+              {quickLinks.map((link, index) => (
+                <div 
+                  key={index} 
+                  className="docs-quick-link"
+                  onClick={() => handleQuickLink(link.label)}
+                >
+                  <span className="docs-quick-icon">{link.icon}</span>
+                  <span className="docs-quick-label">{link.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* System Status */}
           <div className="docs-status glass-card">
             <h3 className="docs-section-title">System Status</h3>
             <div className="docs-status-content">
-              <span className="docs-status-dot">🟢</span>
-              <span className="docs-status-text">All Systems Operational</span>
+              <div className="docs-status-header">
+                <span className="docs-status-dot">🟢</span>
+                <span className="docs-status-text">All Systems Operational</span>
+              </div>
               <span className="docs-status-time">Last updated: May 16, 2025 10:30 AM</span>
               <button 
                 className="btn-secondary docs-status-btn" 
@@ -290,7 +243,7 @@ const HelpDocs = () => {
         </div>
 
         {/* Guides */}
-        <div className="docs-guides" id="getting-started">
+        <div className="docs-guides">
           <h3 className="docs-section-title">Guides & Documentation</h3>
           <div className="docs-guides-grid">
             {guides.map((guide, index) => (
@@ -300,15 +253,7 @@ const HelpDocs = () => {
                 <p className="docs-guide-desc">{guide.desc}</p>
                 <button 
                   className="docs-guide-link"
-                  onClick={() => handleGuideClick(guide.title, guide.link)}
-                  style={{ 
-                    background: 'none', 
-                    border: 'none', 
-                    cursor: 'pointer',
-                    color: '#7C5CFF',
-                    fontSize: '14px',
-                    fontWeight: '500'
-                  }}
+                  onClick={() => handleGuideClick(guide.title)}
                 >
                   {guide.btnText}
                 </button>
@@ -317,9 +262,8 @@ const HelpDocs = () => {
           </div>
         </div>
 
-        {/* Popular Articles + Video Tutorials */}
-        <div className="docs-middle-grid" id="videos">
-          {/* Popular Articles */}
+        {/* Articles + Videos */}
+        <div className="docs-middle-grid">
           <div className="docs-articles glass-card">
             <h3 className="docs-section-title">Popular Articles</h3>
             {articles.map((article, index) => (
@@ -327,7 +271,6 @@ const HelpDocs = () => {
                 key={index} 
                 className="docs-article-item"
                 onClick={() => handleArticleClick(article.title)}
-                style={{ cursor: 'pointer' }}
               >
                 <span className="docs-article-icon">{article.icon}</span>
                 <div className="docs-article-content">
@@ -339,7 +282,6 @@ const HelpDocs = () => {
             ))}
           </div>
 
-          {/* Video Tutorials */}
           <div className="docs-videos glass-card">
             <h3 className="docs-section-title">Video Tutorials</h3>
             {videos.map((video, index) => (
@@ -347,7 +289,6 @@ const HelpDocs = () => {
                 key={index} 
                 className="docs-video-item"
                 onClick={() => handlePlayVideo(video.title)}
-                style={{ cursor: 'pointer' }}
               >
                 <div className="docs-video-thumb">
                   <span className="docs-video-play">▶</span>
@@ -361,9 +302,8 @@ const HelpDocs = () => {
           </div>
         </div>
 
-        {/* Contact Support + What's New */}
+        {/* Support + What's New */}
         <div className="docs-bottom-grid">
-          {/* Contact Support */}
           <div className="docs-support glass-card">
             <h3 className="docs-section-title">Contact Support</h3>
             <p className="docs-support-text">Can't find what you're looking for? We're here to help!</p>
@@ -375,7 +315,6 @@ const HelpDocs = () => {
             </div>
           </div>
 
-          {/* What's New */}
           <div className="docs-whatsnew glass-card">
             <h3 className="docs-section-title">What's New</h3>
             {whatsNew.map((item, index) => (
@@ -388,7 +327,7 @@ const HelpDocs = () => {
           </div>
         </div>
 
-        {/* Bottom CTA */}
+        {/* CTA */}
         <div className="docs-cta glass-card">
           <h3 className="docs-cta-title">Still Need Help?</h3>
           <div className="docs-cta-buttons">
