@@ -1,4 +1,6 @@
-/* Settings Page */
+/* frontend/src/pages/Settings.css */
+
+/* ============ PAGE LAYOUT ============ */
 .settings-page {
   display: flex;
   min-height: 100vh;
@@ -6,13 +8,15 @@
 }
 
 .settings-main {
-  margin-left: 250px;
   flex: 1;
-  padding: 32px 40px 40px;
+  padding: 28px 36px 40px;
+  margin-left: 250px;
   min-height: 100vh;
+  overflow-y: auto;
+  max-height: 100vh;
 }
 
-/* Header */
+/* ============ HEADER ============ */
 .settings-header {
   display: flex;
   justify-content: space-between;
@@ -25,34 +29,39 @@
 .settings-title {
   font-size: 28px;
   font-weight: 700;
-  color: white;
+  color: #FFFFFF;
+  margin-bottom: 2px;
 }
 
 .settings-subtitle {
-  color: #9CA3AF;
   font-size: 14px;
-  margin-top: 4px;
+  color: #9CA3AF;
+  margin-top: 2px;
 }
 
-.settings-header .btn-secondary {
-  padding: 8px 18px !important;
+.reset-btn {
+  padding: 8px 20px !important;
   font-size: 13px !important;
 }
 
-/* Tabs */
+/* ============ TABS ============ */
 .settings-tabs {
   display: flex;
   gap: 4px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   background: rgba(17, 24, 39, 0.5);
   border-radius: 12px;
   padding: 4px;
   overflow-x: auto;
   flex-wrap: wrap;
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .settings-tab {
-  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
   background: transparent;
   border: none;
   border-radius: 8px;
@@ -65,52 +74,75 @@
 }
 
 .settings-tab:hover {
-  color: white;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .settings-tab.active {
-  background: rgba(124, 92, 255, 0.2);
+  background: rgba(124, 92, 255, 0.15);
   color: #7C5CFF;
 }
 
-/* Content */
-.settings-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+.settings-tab-icon {
+  font-size: 16px;
 }
 
-.settings-general,
-.settings-ai,
-.settings-notifications,
-.settings-privacy,
-.settings-integrations,
-.settings-team {
-  padding: 24px;
+/* ============ CONTENT ============ */
+.settings-content {
+  max-width: 900px;
+}
+
+/* ============ SECTION ============ */
+.settings-section {
   background: rgba(17, 24, 39, 0.85);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
+  padding: 28px 32px;
+  transition: all 0.3s ease;
+}
+
+.settings-section:hover {
+  border-color: rgba(124, 92, 255, 0.1);
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.settings-section-icon {
+  font-size: 24px;
 }
 
 .settings-section-title {
   font-size: 18px;
   font-weight: 600;
-  color: white;
-  margin-bottom: 20px;
+  color: #FFFFFF;
+  margin: 0;
 }
 
-/* Form */
+/* ============ FORM ============ */
 .settings-form {
   display: flex;
   flex-direction: column;
+  gap: 18px;
+}
+
+.settings-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
 .settings-form-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .settings-label {
@@ -122,25 +154,44 @@
 .settings-input,
 .settings-select {
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  color: white;
+  color: #FFFFFF;
   font-size: 14px;
-  outline: none;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .settings-input:focus,
 .settings-select:focus {
+  outline: none;
   border-color: #7C5CFF;
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.08);
+}
+
+.settings-input::placeholder {
+  color: #6B7280;
 }
 
 .settings-select option {
   background: #111827;
+  color: #FFFFFF;
 }
 
-/* Theme */
+.settings-save-btn {
+  padding: 12px !important;
+  font-size: 15px !important;
+  justify-content: center;
+  margin-top: 4px;
+  transition: all 0.3s ease;
+}
+
+.settings-save-btn.saving {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ============ THEME ============ */
 .settings-theme-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -149,25 +200,27 @@
 
 .settings-theme-card {
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
   border: 2px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .settings-theme-card:hover {
   border-color: rgba(124, 92, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .settings-theme-card.active {
   border-color: #7C5CFF;
-  background: rgba(124, 92, 255, 0.05);
+  background: rgba(124, 92, 255, 0.06);
 }
 
 .settings-theme-icon {
-  font-size: 24px;
+  font-size: 28px;
   display: block;
   margin-bottom: 4px;
 }
@@ -178,10 +231,18 @@
 }
 
 .settings-theme-card.active .settings-theme-label {
-  color: white;
+  color: #FFFFFF;
 }
 
-/* Mode Buttons */
+.settings-theme-check {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 12px;
+  color: #7C5CFF;
+}
+
+/* ============ MODE BUTTONS ============ */
 .settings-mode-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -189,28 +250,36 @@
 }
 
 .settings-mode-btn {
-  padding: 8px;
+  padding: 10px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
+  border-radius: 8px;
   color: #9CA3AF;
   font-size: 13px;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .settings-mode-btn:hover {
   border-color: rgba(124, 92, 255, 0.3);
-  color: white;
+  color: #FFFFFF;
 }
 
 .settings-mode-btn.active {
-  background: rgba(124, 92, 255, 0.2);
+  background: rgba(124, 92, 255, 0.12);
   border-color: #7C5CFF;
   color: #7C5CFF;
 }
 
-/* Toggles */
+.mode-check {
+  font-size: 12px;
+}
+
+/* ============ TOGGLES ============ */
 .settings-toggle-group {
   display: flex;
   flex-direction: column;
@@ -221,13 +290,28 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.settings-toggle-item:last-child {
+  border-bottom: none;
+}
+
+.settings-toggle-item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .settings-toggle-item span {
   font-size: 14px;
-  color: white;
+  color: #FFFFFF;
+}
+
+.settings-toggle-desc {
+  font-size: 12px !important;
+  color: #6B7280 !important;
 }
 
 .settings-switch {
@@ -235,6 +319,7 @@
   display: inline-block;
   width: 48px;
   height: 26px;
+  flex-shrink: 0;
 }
 
 .settings-switch input {
@@ -262,7 +347,7 @@
   width: 20px;
   left: 3px;
   bottom: 3px;
-  background: white;
+  background: #FFFFFF;
   transition: 0.3s ease;
   border-radius: 50%;
 }
@@ -275,41 +360,37 @@
   transform: translateX(22px);
 }
 
-/* Save Button */
-.settings-save {
-  margin-top: 8px;
-  padding: 12px !important;
-  font-size: 15px !important;
-  justify-content: center;
-}
-
-/* Privacy List */
+/* ============ PRIVACY ============ */
 .settings-privacy-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .settings-privacy-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 14px;
+  padding: 14px 16px;
   background: rgba(255, 255, 255, 0.02);
-  border-radius: 8px;
-  cursor: pointer;
+  border-radius: 10px;
   transition: all 0.3s ease;
 }
 
 .settings-privacy-item:hover {
-  background: rgba(124, 92, 255, 0.05);
+  background: rgba(124, 92, 255, 0.04);
+}
+
+.settings-privacy-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .settings-privacy-label {
-  display: block;
   font-size: 14px;
   font-weight: 500;
-  color: white;
+  color: #FFFFFF;
 }
 
 .settings-privacy-desc {
@@ -317,15 +398,24 @@
   color: #6B7280;
 }
 
-.settings-privacy-arrow {
-  background: none;
-  border: none;
-  color: #6B7280;
-  font-size: 20px;
+.settings-privacy-btn {
+  padding: 6px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  color: #9CA3AF;
+  font-size: 12px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* Integrations */
+.settings-privacy-btn:hover {
+  background: rgba(124, 92, 255, 0.1);
+  color: #7C5CFF;
+  border-color: rgba(124, 92, 255, 0.2);
+}
+
+/* ============ INTEGRATIONS ============ */
 .settings-integrations-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -333,16 +423,21 @@
 }
 
 .settings-integration-card {
-  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.3s ease;
 }
 
-.settings-integration-header {
+.settings-integration-card:hover {
+  border-color: rgba(124, 92, 255, 0.15);
+}
+
+.settings-integration-left {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -355,87 +450,138 @@
 .settings-integration-name {
   font-size: 14px;
   font-weight: 500;
-  color: white;
+  color: #FFFFFF;
 }
 
 .settings-integration-status {
-  padding: 4px 12px;
+  padding: 4px 14px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
-  align-self: flex-start;
   background: rgba(255, 255, 255, 0.05);
   color: #9CA3AF;
+  border: none;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-integration-status:hover {
+  background: rgba(124, 92, 255, 0.1);
+  color: #7C5CFF;
 }
 
 .settings-integration-status.connected {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, 0.1);
   color: #22C55E;
 }
 
-/* Team */
-.settings-team-avatars {
+.settings-integration-status.connected:hover {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+/* ============ TEAM ============ */
+.settings-team-members {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
-  flex-wrap: wrap;
+}
+
+.settings-team-member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.settings-team-member:hover {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .settings-team-avatar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.settings-team-avatar span:first-child {
-  font-size: 32px;
-}
-
-.settings-team-name {
-  font-size: 11px;
-  color: #9CA3AF;
-}
-
-.settings-team-role {
-  font-size: 10px;
-  color: #6B7280;
-}
-
-.settings-team-add {
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(124, 92, 255, 0.15);
-  border: 2px dashed rgba(124, 92, 255, 0.3);
   border-radius: 50%;
-  font-size: 16px;
-  font-weight: 600;
-  color: #7C5CFF;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.settings-team-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-team-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+
+.settings-team-role {
+  font-size: 12px;
+}
+
+.settings-team-action {
+  background: none;
+  border: none;
+  color: #6B7280;
+  font-size: 18px;
   cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.3s ease;
+}
+
+.settings-team-action:hover {
+  color: #FFFFFF;
+}
+
+.settings-team-add {
+  padding: 10px 14px;
+  border: 2px dashed rgba(124, 92, 255, 0.2);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.settings-add-btn {
+  background: none;
+  border: none;
+  color: #7C5CFF;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-add-btn:hover {
+  color: #9B7BFF;
 }
 
 .settings-team-controls {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 16px;
+  margin: 16px 0;
 }
 
-.settings-manage-team {
+.settings-manage-btn {
   width: 100%;
+  padding: 12px !important;
+  font-size: 14px !important;
   justify-content: center;
-  padding: 10px !important;
 }
 
-/* Responsive */
+/* ============ RESPONSIVE ============ */
 @media (max-width: 1024px) {
-  .settings-content {
-    grid-template-columns: 1fr;
+  .settings-main {
+    padding: 24px 28px 30px;
   }
   
   .settings-integrations-grid {
@@ -458,12 +604,26 @@
   }
   
   .settings-tabs {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 4px;
   }
   
   .settings-tab {
+    padding: 8px 14px;
     font-size: 13px;
-    padding: 6px 14px;
+  }
+  
+  .settings-tab-icon {
+    font-size: 14px;
+  }
+  
+  .settings-section {
+    padding: 20px;
+  }
+  
+  .settings-form-row {
+    grid-template-columns: 1fr;
   }
   
   .settings-theme-grid {
@@ -484,6 +644,36 @@
 }
 
 @media (max-width: 480px) {
+  .settings-main {
+    padding: 12px;
+    margin-left: 0;
+  }
+  
+  .settings-title {
+    font-size: 20px;
+  }
+  
+  .settings-subtitle {
+    font-size: 13px;
+  }
+  
+  .settings-tab {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .settings-tab-icon {
+    font-size: 12px;
+  }
+  
+  .settings-section {
+    padding: 16px;
+  }
+  
+  .settings-section-title {
+    font-size: 16px;
+  }
+  
   .settings-theme-grid {
     grid-template-columns: 1fr;
   }
@@ -492,12 +682,23 @@
     grid-template-columns: 1fr;
   }
   
-  .settings-tab {
-    font-size: 12px;
-    padding: 4px 10px;
+  .settings-integration-card {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
   }
   
-  .settings-team-avatar span:first-child {
-    font-size: 24px;
+  .settings-privacy-item {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  
+  .settings-privacy-btn {
+    width: 100%;
+  }
+  
+  .settings-team-member {
+    flex-wrap: wrap;
   }
 }

@@ -1,7 +1,9 @@
+// frontend/src/pages/Settings.jsx
+
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 import Sidebar from '../components/Dashboard/Sidebar'
-import toast from 'react-hot-toast'
 import './Settings.css'
 
 const Settings = () => {
@@ -29,6 +31,7 @@ const Settings = () => {
     weeklyReports: false,
     marketingUpdates: false,
   })
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -38,29 +41,337 @@ const Settings = () => {
   }, [navigate])
 
   const handleSave = () => {
-    toast.success('Settings saved successfully!')
+    setIsSaving(true)
+    setTimeout(() => {
+      setIsSaving(false)
+      toast.success('✨ Settings saved successfully!')
+    }, 1000)
   }
 
   const handleReset = () => {
-    toast.success('Settings reset to default!')
+    toast.success('🔄 Settings reset to default!')
   }
 
   const tabs = [
-    { id: 'general', label: '⚙ General' },
-    { id: 'ai', label: '✨ AI Preferences' },
-    { id: 'notifications', label: '🔔 Notifications' },
-    { id: 'privacy', label: '🔒 Data & Privacy' },
-    { id: 'integrations', label: '🔗 Integrations' },
-    { id: 'team', label: '👥 Team' },
+    { id: 'general', label: 'General', icon: '⚙️' },
+    { id: 'ai', label: 'AI Preferences', icon: '✨' },
+    { id: 'notifications', label: 'Notifications', icon: '🔔' },
+    { id: 'privacy', label: 'Privacy', icon: '🔒' },
+    { id: 'integrations', label: 'Integrations', icon: '🔗' },
+    { id: 'team', label: 'Team', icon: '👥' },
   ]
 
   const teamMembers = [
-    { name: 'John Doe', role: 'Admin', avatar: '👤' },
-    { name: 'Emma Smith', role: 'Editor', avatar: '👤' },
-    { name: 'Michael Brown', role: 'Viewer', avatar: '👤' },
-    { name: 'Sarah Wilson', role: 'Editor', avatar: '👤' },
-    { name: 'David Lee', role: 'Admin', avatar: '👤' },
+    { name: 'John Doe', role: 'Admin', avatar: '👤', color: '#7C5CFF' },
+    { name: 'Emma Smith', role: 'Editor', avatar: '👤', color: '#22C55E' },
+    { name: 'Michael Brown', role: 'Viewer', avatar: '👤', color: '#3B82F6' },
+    { name: 'Sarah Wilson', role: 'Editor', avatar: '👤', color: '#F59E0B' },
   ]
+
+  const integrations = [
+    { name: 'Google Analytics', icon: '📊', status: 'Connected', connected: true },
+    { name: 'Slack', icon: '💬', status: 'Connect', connected: false },
+    { name: 'Webhook', icon: '🔗', status: 'Connect', connected: false },
+    { name: 'Google Tag Manager', icon: '📈', status: 'Connected', connected: true },
+    { name: 'Segment', icon: '📦', status: 'Connect', connected: false },
+    { name: 'Mixpanel', icon: '📊', status: 'Connect', connected: false },
+  ]
+
+  const renderGeneralSettings = () => (
+    <div className="settings-section">
+      <div className="settings-section-header">
+        <span className="settings-section-icon">⚙️</span>
+        <h3 className="settings-section-title">General Settings</h3>
+      </div>
+      <div className="settings-form">
+        <div className="settings-form-group">
+          <label className="settings-label">Organization Name</label>
+          <input 
+            type="text" 
+            className="settings-input"
+            value={formData.organizationName}
+            onChange={(e) => setFormData({...formData, organizationName: e.target.value})}
+            placeholder="Enter organization name"
+          />
+        </div>
+        <div className="settings-form-row">
+          <div className="settings-form-group">
+            <label className="settings-label">Time Zone</label>
+            <select 
+              className="settings-select"
+              value={formData.timeZone}
+              onChange={(e) => setFormData({...formData, timeZone: e.target.value})}
+            >
+              <option>GMT +5:30</option>
+              <option>GMT +0:00</option>
+              <option>GMT -5:00</option>
+              <option>GMT +8:00</option>
+            </select>
+          </div>
+          <div className="settings-form-group">
+            <label className="settings-label">Language</label>
+            <select 
+              className="settings-select"
+              value={formData.language}
+              onChange={(e) => setFormData({...formData, language: e.target.value})}
+            >
+              <option>English</option>
+              <option>Spanish</option>
+              <option>French</option>
+              <option>German</option>
+              <option>Hindi</option>
+            </select>
+          </div>
+        </div>
+        <div className="settings-form-group">
+          <label className="settings-label">Date Format</label>
+          <select 
+            className="settings-select"
+            value={formData.dateFormat}
+            onChange={(e) => setFormData({...formData, dateFormat: e.target.value})}
+          >
+            <option>DD/MM/YYYY</option>
+            <option>MM/DD/YYYY</option>
+            <option>YYYY/MM/DD</option>
+          </select>
+        </div>
+        <div className="settings-form-group">
+          <label className="settings-label">Theme</label>
+          <div className="settings-theme-grid">
+            {[
+              { id: 'light', icon: '☀️', label: 'Light' },
+              { id: 'dark', icon: '🌙', label: 'Dark' },
+              { id: 'system', icon: '💻', label: 'System' }
+            ].map((t) => (
+              <div 
+                key={t.id}
+                className={`settings-theme-card ${theme === t.id ? 'active' : ''}`}
+                onClick={() => setTheme(t.id)}
+              >
+                <span className="settings-theme-icon">{t.icon}</span>
+                <span className="settings-theme-label">{t.label}</span>
+                {theme === t.id && <span className="settings-theme-check">✓</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+        <button 
+          className={`btn-primary settings-save-btn ${isSaving ? 'saving' : ''}`}
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          {isSaving ? 'Saving...' : '💾 Save Changes'}
+        </button>
+      </div>
+    </div>
+  )
+
+  const renderAISettings = () => (
+    <div className="settings-section">
+      <div className="settings-section-header">
+        <span className="settings-section-icon">✨</span>
+        <h3 className="settings-section-title">AI Preferences</h3>
+      </div>
+      <div className="settings-form">
+        <div className="settings-form-group">
+          <label className="settings-label">AI Model</label>
+          <select className="settings-select" value={aiPreferences.model}>
+            <option>Gemini 2.5 Flash</option>
+            <option>Gemini 2.0 Pro</option>
+            <option>GPT-4o</option>
+            <option>Claude 3.5</option>
+          </select>
+        </div>
+        <div className="settings-form-group">
+          <label className="settings-label">Generation Mode</label>
+          <div className="settings-mode-grid">
+            {['Fast', 'Balanced', 'High Quality'].map((mode) => (
+              <button 
+                key={mode}
+                className={`settings-mode-btn ${aiPreferences.generationMode === mode ? 'active' : ''}`}
+                onClick={() => setAiPreferences({...aiPreferences, generationMode: mode})}
+              >
+                {mode}
+                {aiPreferences.generationMode === mode && <span className="mode-check">✓</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="settings-form-group">
+          <label className="settings-label">AI Features</label>
+          <div className="settings-toggle-group">
+            {[
+              { key: 'autoApply', label: 'Auto Apply Generated UI' },
+              { key: 'suggestImprovements', label: 'Suggest UI Improvements' },
+              { key: 'advancedAnalysis', label: 'Enable Advanced Analysis' },
+              { key: 'learningMode', label: 'Learning Mode (Experimental)' }
+            ].map((item) => (
+              <div key={item.key} className="settings-toggle-item">
+                <span>{item.label}</span>
+                <label className="settings-switch">
+                  <input 
+                    type="checkbox" 
+                    checked={aiPreferences[item.key]}
+                    onChange={(e) => setAiPreferences({...aiPreferences, [item.key]: e.target.checked})}
+                  />
+                  <span className="settings-slider"></span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button className="btn-primary settings-save-btn" onClick={handleSave}>
+          💾 Save Changes
+        </button>
+      </div>
+    </div>
+  )
+
+  const renderNotifications = () => (
+    <div className="settings-section">
+      <div className="settings-section-header">
+        <span className="settings-section-icon">🔔</span>
+        <h3 className="settings-section-title">Notification Preferences</h3>
+      </div>
+      <div className="settings-toggle-group">
+        {[
+          { key: 'frictionAlerts', label: 'Friction Score Alerts', desc: 'Get notified when friction is detected' },
+          { key: 'newUIGenerated', label: 'New UI Generated', desc: 'When AI generates a new UI' },
+          { key: 'uiApplied', label: 'UI Applied', desc: 'When a UI is successfully applied' },
+          { key: 'weeklyReports', label: 'Weekly Reports', desc: 'Receive weekly performance reports' },
+          { key: 'marketingUpdates', label: 'Marketing Updates', desc: 'Product updates and announcements' }
+        ].map((item) => (
+          <div key={item.key} className="settings-toggle-item">
+            <div>
+              <span>{item.label}</span>
+              <span className="settings-toggle-desc">{item.desc}</span>
+            </div>
+            <label className="settings-switch">
+              <input 
+                type="checkbox" 
+                checked={notifications[item.key]}
+                onChange={(e) => setNotifications({...notifications, [item.key]: e.target.checked})}
+              />
+              <span className="settings-slider"></span>
+            </label>
+          </div>
+        ))}
+      </div>
+      <button className="btn-primary settings-save-btn" onClick={handleSave}>
+        💾 Save Changes
+      </button>
+    </div>
+  )
+
+  const renderPrivacy = () => (
+    <div className="settings-section">
+      <div className="settings-section-header">
+        <span className="settings-section-icon">🔒</span>
+        <h3 className="settings-section-title">Data & Privacy</h3>
+      </div>
+      <div className="settings-privacy-list">
+        {[
+          { label: 'Data Retention', desc: 'Keep data for 90 days' },
+          { label: 'Export My Data', desc: 'Download all your data in JSON format' },
+          { label: 'Delete My Data', desc: 'Permanently delete all your data' },
+          { label: 'Privacy Policy', desc: 'View our privacy policy' }
+        ].map((item, index) => (
+          <div key={index} className="settings-privacy-item">
+            <div className="settings-privacy-left">
+              <span className="settings-privacy-label">{item.label}</span>
+              <span className="settings-privacy-desc">{item.desc}</span>
+            </div>
+            <button className="settings-privacy-btn">
+              {item.label === 'Delete My Data' ? 'Delete' : 'Manage'}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  const renderIntegrations = () => (
+    <div className="settings-section">
+      <div className="settings-section-header">
+        <span className="settings-section-icon">🔗</span>
+        <h3 className="settings-section-title">Integrations</h3>
+      </div>
+      <div className="settings-integrations-grid">
+        {integrations.map((item, index) => (
+          <div key={index} className="settings-integration-card">
+            <div className="settings-integration-left">
+              <span className="settings-integration-icon">{item.icon}</span>
+              <span className="settings-integration-name">{item.name}</span>
+            </div>
+            <button className={`settings-integration-status ${item.connected ? 'connected' : ''}`}>
+              {item.connected ? '✅ Connected' : 'Connect'}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  const renderTeam = () => (
+    <div className="settings-section">
+      <div className="settings-section-header">
+        <span className="settings-section-icon">👥</span>
+        <h3 className="settings-section-title">Team Management</h3>
+      </div>
+      <div className="settings-team-members">
+        {teamMembers.map((member, index) => (
+          <div key={index} className="settings-team-member">
+            <div className="settings-team-avatar" style={{ background: member.color + '20' }}>
+              {member.avatar}
+            </div>
+            <div className="settings-team-info">
+              <span className="settings-team-name">{member.name}</span>
+              <span className="settings-team-role" style={{ color: member.color }}>
+                {member.role}
+              </span>
+            </div>
+            <button className="settings-team-action">⋮</button>
+          </div>
+        ))}
+        <div className="settings-team-add">
+          <button className="settings-add-btn">+ Add Team Member</button>
+        </div>
+      </div>
+      <div className="settings-team-controls">
+        <div className="settings-form-group">
+          <label className="settings-label">Default Role</label>
+          <select className="settings-select">
+            <option>Admin</option>
+            <option>Editor</option>
+            <option>Viewer</option>
+          </select>
+        </div>
+        <div className="settings-form-group">
+          <label className="settings-label">Default Permissions</label>
+          <select className="settings-select">
+            <option>Full Access</option>
+            <option>Read Only</option>
+            <option>Custom</option>
+          </select>
+        </div>
+      </div>
+      <button className="btn-secondary settings-manage-btn">
+        Manage Team
+      </button>
+    </div>
+  )
+
+  const renderContent = () => {
+    switch(activeTab) {
+      case 'general': return renderGeneralSettings()
+      case 'ai': return renderAISettings()
+      case 'notifications': return renderNotifications()
+      case 'privacy': return renderPrivacy()
+      case 'integrations': return renderIntegrations()
+      case 'team': return renderTeam()
+      default: return renderGeneralSettings()
+    }
+  }
 
   return (
     <div className="settings-page">
@@ -69,11 +380,11 @@ const Settings = () => {
         {/* Header */}
         <div className="settings-header">
           <div>
-            <h1 className="settings-title">⚙ Settings</h1>
+            <h1 className="settings-title">⚙️ Settings</h1>
             <p className="settings-subtitle">Manage your account, preferences and application settings.</p>
           </div>
-          <button className="btn-secondary" onClick={handleReset}>
-            Reset to Default
+          <button className="btn-secondary reset-btn" onClick={handleReset}>
+            🔄 Reset to Default
           </button>
         </div>
 
@@ -85,6 +396,7 @@ const Settings = () => {
               className={`settings-tab ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => setActiveTab(tab.id)}
             >
+              <span className="settings-tab-icon">{tab.icon}</span>
               {tab.label}
             </button>
           ))}
@@ -92,362 +404,7 @@ const Settings = () => {
 
         {/* Content */}
         <div className="settings-content">
-          {/* General Settings */}
-          {activeTab === 'general' && (
-            <div className="settings-general glass-card">
-              <h3 className="settings-section-title">General Settings</h3>
-              <div className="settings-form">
-                <div className="settings-form-group">
-                  <label className="settings-label">Organization Name</label>
-                  <input 
-                    type="text" 
-                    className="settings-input"
-                    value={formData.organizationName}
-                    onChange={(e) => setFormData({...formData, organizationName: e.target.value})}
-                  />
-                </div>
-                <div className="settings-form-group">
-                  <label className="settings-label">Time Zone</label>
-                  <select 
-                    className="settings-select"
-                    value={formData.timeZone}
-                    onChange={(e) => setFormData({...formData, timeZone: e.target.value})}
-                  >
-                    <option>GMT +5:30</option>
-                    <option>GMT +0:00</option>
-                    <option>GMT -5:00</option>
-                    <option>GMT +8:00</option>
-                  </select>
-                </div>
-                <div className="settings-form-group">
-                  <label className="settings-label">Language</label>
-                  <select 
-                    className="settings-select"
-                    value={formData.language}
-                    onChange={(e) => setFormData({...formData, language: e.target.value})}
-                  >
-                    <option>English</option>
-                    <option>Spanish</option>
-                    <option>French</option>
-                    <option>German</option>
-                    <option>Hindi</option>
-                  </select>
-                </div>
-                <div className="settings-form-group">
-                  <label className="settings-label">Date Format</label>
-                  <select 
-                    className="settings-select"
-                    value={formData.dateFormat}
-                    onChange={(e) => setFormData({...formData, dateFormat: e.target.value})}
-                  >
-                    <option>DD/MM/YYYY</option>
-                    <option>MM/DD/YYYY</option>
-                    <option>YYYY/MM/DD</option>
-                  </select>
-                </div>
-                <div className="settings-form-group">
-                  <label className="settings-label">Theme Selection</label>
-                  <div className="settings-theme-grid">
-                    <div 
-                      className={`settings-theme-card ${theme === 'light' ? 'active' : ''}`}
-                      onClick={() => setTheme('light')}
-                    >
-                      <span className="settings-theme-icon">☀</span>
-                      <span className="settings-theme-label">Light</span>
-                    </div>
-                    <div 
-                      className={`settings-theme-card ${theme === 'dark' ? 'active' : ''}`}
-                      onClick={() => setTheme('dark')}
-                    >
-                      <span className="settings-theme-icon">🌙</span>
-                      <span className="settings-theme-label">Dark</span>
-                    </div>
-                    <div 
-                      className={`settings-theme-card ${theme === 'system' ? 'active' : ''}`}
-                      onClick={() => setTheme('system')}
-                    >
-                      <span className="settings-theme-icon">💻</span>
-                      <span className="settings-theme-label">System</span>
-                    </div>
-                  </div>
-                </div>
-                <button className="btn-primary settings-save" onClick={handleSave}>
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* AI Preferences */}
-          {activeTab === 'ai' && (
-            <div className="settings-ai glass-card">
-              <h3 className="settings-section-title">AI Preferences</h3>
-              <div className="settings-form">
-                <div className="settings-form-group">
-                  <label className="settings-label">AI Model</label>
-                  <select className="settings-select" value={aiPreferences.model}>
-                    <option>Gemini 2.5 Flash</option>
-                    <option>Gemini 2.0 Pro</option>
-                    <option>GPT-4o</option>
-                    <option>Claude 3.5</option>
-                  </select>
-                </div>
-                <div className="settings-form-group">
-                  <label className="settings-label">Generation Mode</label>
-                  <div className="settings-mode-grid">
-                    <button 
-                      className={`settings-mode-btn ${aiPreferences.generationMode === 'Fast' ? 'active' : ''}`}
-                      onClick={() => setAiPreferences({...aiPreferences, generationMode: 'Fast'})}
-                    >
-                      Fast
-                    </button>
-                    <button 
-                      className={`settings-mode-btn ${aiPreferences.generationMode === 'Balanced' ? 'active' : ''}`}
-                      onClick={() => setAiPreferences({...aiPreferences, generationMode: 'Balanced'})}
-                    >
-                      Balanced
-                    </button>
-                    <button 
-                      className={`settings-mode-btn ${aiPreferences.generationMode === 'High Quality' ? 'active' : ''}`}
-                      onClick={() => setAiPreferences({...aiPreferences, generationMode: 'High Quality'})}
-                    >
-                      High Quality
-                    </button>
-                  </div>
-                </div>
-                <div className="settings-form-group">
-                  <div className="settings-toggle-group">
-                    <div className="settings-toggle-item">
-                      <span>Auto Apply Generated UI</span>
-                      <label className="settings-switch">
-                        <input 
-                          type="checkbox" 
-                          checked={aiPreferences.autoApply}
-                          onChange={(e) => setAiPreferences({...aiPreferences, autoApply: e.target.checked})}
-                        />
-                        <span className="settings-slider"></span>
-                      </label>
-                    </div>
-                    <div className="settings-toggle-item">
-                      <span>Suggest UI Improvements</span>
-                      <label className="settings-switch">
-                        <input 
-                          type="checkbox" 
-                          checked={aiPreferences.suggestImprovements}
-                          onChange={(e) => setAiPreferences({...aiPreferences, suggestImprovements: e.target.checked})}
-                        />
-                        <span className="settings-slider"></span>
-                      </label>
-                    </div>
-                    <div className="settings-toggle-item">
-                      <span>Enable Advanced Analysis</span>
-                      <label className="settings-switch">
-                        <input 
-                          type="checkbox" 
-                          checked={aiPreferences.advancedAnalysis}
-                          onChange={(e) => setAiPreferences({...aiPreferences, advancedAnalysis: e.target.checked})}
-                        />
-                        <span className="settings-slider"></span>
-                      </label>
-                    </div>
-                    <div className="settings-toggle-item">
-                      <span>Learning Mode</span>
-                      <label className="settings-switch">
-                        <input 
-                          type="checkbox" 
-                          checked={aiPreferences.learningMode}
-                          onChange={(e) => setAiPreferences({...aiPreferences, learningMode: e.target.checked})}
-                        />
-                        <span className="settings-slider"></span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <button className="btn-primary settings-save" onClick={handleSave}>
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Notifications */}
-          {activeTab === 'notifications' && (
-            <div className="settings-notifications glass-card">
-              <h3 className="settings-section-title">Notification Settings</h3>
-              <div className="settings-toggle-group">
-                <div className="settings-toggle-item">
-                  <span>🔔 Friction Score Alerts</span>
-                  <label className="settings-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notifications.frictionAlerts}
-                      onChange={(e) => setNotifications({...notifications, frictionAlerts: e.target.checked})}
-                    />
-                    <span className="settings-slider"></span>
-                  </label>
-                </div>
-                <div className="settings-toggle-item">
-                  <span>🔔 New UI Generated</span>
-                  <label className="settings-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notifications.newUIGenerated}
-                      onChange={(e) => setNotifications({...notifications, newUIGenerated: e.target.checked})}
-                    />
-                    <span className="settings-slider"></span>
-                  </label>
-                </div>
-                <div className="settings-toggle-item">
-                  <span>🔔 UI Applied</span>
-                  <label className="settings-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notifications.uiApplied}
-                      onChange={(e) => setNotifications({...notifications, uiApplied: e.target.checked})}
-                    />
-                    <span className="settings-slider"></span>
-                  </label>
-                </div>
-                <div className="settings-toggle-item">
-                  <span>📊 Weekly Reports</span>
-                  <label className="settings-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notifications.weeklyReports}
-                      onChange={(e) => setNotifications({...notifications, weeklyReports: e.target.checked})}
-                    />
-                    <span className="settings-slider"></span>
-                  </label>
-                </div>
-                <div className="settings-toggle-item">
-                  <span>📧 Marketing Updates</span>
-                  <label className="settings-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notifications.marketingUpdates}
-                      onChange={(e) => setNotifications({...notifications, marketingUpdates: e.target.checked})}
-                    />
-                    <span className="settings-slider"></span>
-                  </label>
-                </div>
-              </div>
-              <button className="btn-primary settings-save" onClick={handleSave}>
-                Save Changes
-              </button>
-            </div>
-          )}
-
-          {/* Data & Privacy */}
-          {activeTab === 'privacy' && (
-            <div className="settings-privacy glass-card">
-              <h3 className="settings-section-title">Data & Privacy</h3>
-              <div className="settings-privacy-list">
-                <div className="settings-privacy-item">
-                  <div>
-                    <span className="settings-privacy-label">Data Retention</span>
-                    <span className="settings-privacy-desc">Keep data for 90 days</span>
-                  </div>
-                  <button className="settings-privacy-arrow">›</button>
-                </div>
-                <div className="settings-privacy-item">
-                  <div>
-                    <span className="settings-privacy-label">Export My Data</span>
-                    <span className="settings-privacy-desc">Download all your data</span>
-                  </div>
-                  <button className="settings-privacy-arrow">›</button>
-                </div>
-                <div className="settings-privacy-item">
-                  <div>
-                    <span className="settings-privacy-label">Delete My Data</span>
-                    <span className="settings-privacy-desc">Permanently delete your data</span>
-                  </div>
-                  <button className="settings-privacy-arrow">›</button>
-                </div>
-                <div className="settings-privacy-item">
-                  <div>
-                    <span className="settings-privacy-label">Privacy Policy</span>
-                    <span className="settings-privacy-desc">View our privacy policy</span>
-                  </div>
-                  <button className="settings-privacy-arrow">›</button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Integrations */}
-          {activeTab === 'integrations' && (
-            <div className="settings-integrations glass-card">
-              <h3 className="settings-section-title">Integrations</h3>
-              <div className="settings-integrations-grid">
-                <div className="settings-integration-card">
-                  <div className="settings-integration-header">
-                    <span className="settings-integration-icon">📊</span>
-                    <span className="settings-integration-name">Google Analytics</span>
-                  </div>
-                  <span className="settings-integration-status connected">Connected</span>
-                </div>
-                <div className="settings-integration-card">
-                  <div className="settings-integration-header">
-                    <span className="settings-integration-icon">💬</span>
-                    <span className="settings-integration-name">Slack</span>
-                  </div>
-                  <span className="settings-integration-status">Connect</span>
-                </div>
-                <div className="settings-integration-card">
-                  <div className="settings-integration-header">
-                    <span className="settings-integration-icon">🔗</span>
-                    <span className="settings-integration-name">Webhook</span>
-                  </div>
-                  <span className="settings-integration-status">Connect</span>
-                </div>
-                <div className="settings-integration-card">
-                  <div className="settings-integration-header">
-                    <span className="settings-integration-icon">📈</span>
-                    <span className="settings-integration-name">Google Tag Manager</span>
-                  </div>
-                  <span className="settings-integration-status connected">Connected</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Team Settings */}
-          {activeTab === 'team' && (
-            <div className="settings-team glass-card">
-              <h3 className="settings-section-title">Team Settings</h3>
-              <div className="settings-team-avatars">
-                {teamMembers.map((member, index) => (
-                  <div key={index} className="settings-team-avatar">
-                    <span>{member.avatar}</span>
-                    <span className="settings-team-name">{member.name}</span>
-                    <span className="settings-team-role">{member.role}</span>
-                  </div>
-                ))}
-                <div className="settings-team-add">+5</div>
-              </div>
-              <div className="settings-team-controls">
-                <div className="settings-form-group">
-                  <label className="settings-label">Role</label>
-                  <select className="settings-select">
-                    <option>Admin</option>
-                    <option>Editor</option>
-                    <option>Viewer</option>
-                  </select>
-                </div>
-                <div className="settings-form-group">
-                  <label className="settings-label">Permissions</label>
-                  <select className="settings-select">
-                    <option>Full Access</option>
-                    <option>Read Only</option>
-                    <option>Custom</option>
-                  </select>
-                </div>
-              </div>
-              <button className="btn-primary settings-manage-team">
-                Manage Team
-              </button>
-            </div>
-          )}
+          {renderContent()}
         </div>
       </main>
     </div>
