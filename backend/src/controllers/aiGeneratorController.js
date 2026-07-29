@@ -1,7 +1,9 @@
+// backend/src/controllers/aiGeneratorController.js
+
 const FrictionScore = require('../models/FrictionScore');
 const GeneratedUI = require('../models/GeneratedUI');
 const Behaviour = require('../models/Behaviour');
-const GeminiService = require('../services/geminiService');
+const geminiService = require('../services/geminiService');
 
 // Generate UI from friction data
 exports.generateUI = async (req, res) => {
@@ -14,7 +16,6 @@ exports.generateUI = async (req, res) => {
     let frictionData = null;
     let behaviourData = null;
     
-    // Try to get friction score from database
     if (sessionId) {
       frictionData = await FrictionScore.findOne({ sessionId })
         .sort({ createdAt: -1 });
@@ -38,7 +39,13 @@ exports.generateUI = async (req, res) => {
     };
     
     // Get recommendations from Gemini
-    const geminiResponse = await GeminiService.generateUIRecommendations(frictionReport);
+    let geminiResponse;
+    try {
+      geminiResponse = await geminiService.generateUIRecommendations(frictionReport);
+    } catch (error) {
+      console.error('Gemini error, using fallback:', error.message);
+      geminiResponse = geminiService.getFallbackResponse();
+    }
     
     // Calculate optimized score
     const optimizedScore = Math.max(0, (frictionReport.frictionScore || 72) - (geminiResponse.estimatedReduction || 38));
@@ -100,7 +107,6 @@ exports.generateUI = async (req, res) => {
   } catch (error) {
     console.error('❌ Error generating UI:', error);
     
-    // Fallback response
     const fallbackUI = {
       id: `fallback-${Date.now()}`,
       page: 'Tax Form',
@@ -191,6 +197,7 @@ exports.applyUI = async (req, res) => {
     }
     
     generatedUI.status = 'applied';
+    generatedUI.appliedAt = new Date();
     await generatedUI.save();
     
     res.json({

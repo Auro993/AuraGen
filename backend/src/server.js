@@ -1,3 +1,5 @@
+// backend/src/server.js
+
 console.log('🚀 Starting server initialization...');
 
 const express = require('express');
@@ -142,6 +144,15 @@ try {
   console.error('❌ UI routes error:', error.message);
 }
 
+// ✅ NEW: Heatmap routes
+try {
+  const heatmapRoutes = require('./routes/heatmapRoutes');
+  app.use('/api/heatmap', heatmapRoutes);
+  console.log('✅ Heatmap routes loaded');
+} catch (error) {
+  console.error('❌ Heatmap routes error:', error.message);
+}
+
 console.log('✅ All routes loaded');
 
 // ============ WEBSOCKET ============
@@ -194,7 +205,6 @@ server.listen(PORT, () => {
 process.on('uncaughtException', (error) => {
   console.error('❌ Uncaught Exception:', error);
   console.error('Stack:', error.stack);
-  // Graceful shutdown
   setTimeout(() => {
     process.exit(1);
   }, 1000);

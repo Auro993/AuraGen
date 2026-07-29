@@ -1,3 +1,5 @@
+// backend/src/services/geminiService.js
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 class GeminiService {
@@ -11,7 +13,7 @@ class GeminiService {
     
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.model = this.genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       generationConfig: {
         temperature: 0.7,
         topK: 1,
@@ -38,11 +40,25 @@ class GeminiService {
       
       // Parse JSON response
       try {
-        // Try to extract JSON from the response
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
-          return parsed;
+          return {
+            layout: parsed.layout || 'Wizard',
+            steps: parsed.steps || 3,
+            buttonSize: parsed.buttonSize || 'Large',
+            recommendations: parsed.recommendations || ['Split form into steps', 'Add progress bar'],
+            estimatedReduction: parsed.estimatedReduction || 38,
+            confidence: parsed.confidence || 67,
+            estimatedImpact: parsed.estimatedImpact || {
+              taskSuccess: 27,
+              completionTime: -32,
+              errorRate: -41,
+              satisfaction: 31
+            },
+            designNotes: parsed.designNotes || '',
+            summary: parsed.summary || 'Users struggle with this form due to excessive fields.'
+          };
         }
         return this.parseFallback(text);
       } catch (parseError) {
@@ -94,22 +110,25 @@ Based on this data, suggest UI improvements.
     "Add progress bar"
   ],
   "estimatedReduction": 38,
+  "confidence": 85,
+  "estimatedImpact": {
+    "taskSuccess": 27,
+    "completionTime": -32,
+    "errorRate": -41,
+    "satisfaction": 31
+  },
   "designNotes": "Convert the long form into a conversational step-by-step wizard with a progress indicator.",
   "summary": "Users struggle with this form due to excessive fields and lack of guidance."
-}
-`;
+}`;
   }
 
   parseFallback(text) {
-    // Try to extract structured data from text
     const lines = text.split('\n').filter(l => l.trim());
     const recommendations = [];
     let layout = 'Wizard';
     let steps = 3;
     let buttonSize = 'Large';
     let estimatedReduction = 30;
-    let designNotes = '';
-    let summary = '';
 
     for (const line of lines) {
       if (line.includes('Wizard') || line.includes('wizard')) layout = 'Wizard';
@@ -117,8 +136,6 @@ Based on this data, suggest UI improvements.
         const match = line.match(/\d+/);
         if (match) steps = parseInt(match[0]) || 3;
       }
-      if (line.includes('Large') || line.includes('large')) buttonSize = 'Large';
-      if (line.includes('Medium') || line.includes('medium')) buttonSize = 'Medium';
       if (line.includes('reduce') || line.includes('Reduce')) {
         recommendations.push(line.trim());
       }
@@ -146,8 +163,15 @@ Based on this data, suggest UI improvements.
       buttonSize: buttonSize,
       recommendations: recommendations.slice(0, 5),
       estimatedReduction: estimatedReduction,
-      designNotes: designNotes || 'Simplify the form using a wizard layout with clear progress indicators.',
-      summary: summary || 'Users are struggling with the current form. A step-by-step wizard will reduce cognitive load.'
+      confidence: 75,
+      estimatedImpact: {
+        taskSuccess: 27,
+        completionTime: -32,
+        errorRate: -41,
+        satisfaction: 31
+      },
+      designNotes: 'Simplify the form using a wizard layout with clear progress indicators.',
+      summary: 'Users are struggling with the current form. A step-by-step wizard will reduce cognitive load.'
     };
   }
 
@@ -164,6 +188,13 @@ Based on this data, suggest UI improvements.
         'Add progress bar'
       ],
       estimatedReduction: 38,
+      confidence: 67,
+      estimatedImpact: {
+        taskSuccess: 27,
+        completionTime: -32,
+        errorRate: -41,
+        satisfaction: 31
+      },
       designNotes: 'Convert the long form into a conversational step-by-step wizard with a progress indicator.',
       summary: 'Users struggle with this form due to excessive fields and lack of guidance.'
     };

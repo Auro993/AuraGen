@@ -28,6 +28,7 @@ const GeneratedUI = () => {
     step2: '',
     step3: ''
   })
+  const [isGenerating, setIsGenerating] = useState(false)
 
   useEffect(() => {
     if (location.state?.generatedUI) {
@@ -45,20 +46,16 @@ const GeneratedUI = () => {
       setStats(statsRes.data)
 
       const latestRes = await api.get('/generated-ui/latest')
-      setGeneratedUI(latestRes.data)
+      if (latestRes.data) {
+        setGeneratedUI(latestRes.data)
+      }
 
       const allRes = await api.get('/generated-ui')
       setAllGenerated(allRes.data.generatedUIs || [])
 
     } catch (error) {
       console.error('Error fetching generated UI data:', error)
-      setStats({
-        totalGenerated: 35,
-        applied: 12,
-        successRate: 94,
-        avgFrictionReduction: 38,
-        userSatisfaction: 92
-      })
+      // Fallback data
       setGeneratedUI({
         id: 'fallback-001',
         page: 'Tax Form',
@@ -95,6 +92,33 @@ const GeneratedUI = () => {
     }
   }
 
+  const handleGenerateNewUI = async () => {
+    try {
+      setIsGenerating(true)
+      toast.loading('🤖 Generating new UI with Gemini...')
+      
+      const response = await api.post('/ai/generate', {
+        sessionId: `demo-${Date.now()}`,
+        page: 'Tax Form',
+        frictionScore: 72,
+        reasons: ['Complex form', 'Too many fields']
+      })
+      
+      toast.dismiss()
+      
+      if (response.data.success) {
+        setGeneratedUI(response.data.generatedUI)
+        toast.success('✨ New UI generated successfully!')
+      }
+    } catch (error) {
+      toast.dismiss()
+      console.error('Error generating UI:', error)
+      toast.error('Failed to generate UI')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   const handleApplyUI = async () => {
     if (!generatedUI?.id) return
     try {
@@ -112,46 +136,29 @@ const GeneratedUI = () => {
     setFormData({ ...formData, [step]: value })
   }
 
-  // ✅ FIX: Validate current step
   const isStepValid = () => {
     const stepKey = `step${currentStep}`
     return formData[stepKey]?.trim() !== ''
   }
 
-  // ✅ FIX: Handle continue button click
   const handleContinue = async () => {
-    // Validate current step
     if (!isStepValid()) {
       toast.error(`Please fill in Step ${currentStep} before continuing`)
       return
     }
 
     if (currentStep < 3) {
-      // Move to next step
       setCurrentStep(currentStep + 1)
       toast.success(`Step ${currentStep + 1} unlocked! 🎯`)
     } else {
-      // Submit the form
       await handleSubmit()
     }
   }
 
-  // ✅ FIX: Handle form submission
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Here you would send the data to your backend
-      const payload = {
-        formData: formData,
-        generatedUIId: generatedUI?.id
-      }
-      
-      // Uncomment when API is ready
-      // await api.post('/ui/submit', payload)
-      
       toast.success('Form submitted successfully! 🎉')
       navigate('/dashboard')
     } catch (error) {
@@ -162,7 +169,6 @@ const GeneratedUI = () => {
     }
   }
 
-  // ✅ FIX: Handle going back a step
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
@@ -176,82 +182,28 @@ const GeneratedUI = () => {
     { label: 'Friction Reduced', value: `${stats.avgFrictionReduction || 38}%`, icon: '📉', color: '#F59E0B' },
   ]
 
-  const originalIssues = generatedUI?.reasons || [
-    'Too many fields',
-    'Long scrolling',
-    'High Cognitive Load',
-    'No hierarchy',
-    'Confusing buttons'
-  ]
-
-  const aiImprovements = generatedUI?.recommendations || [
-    'Reduced Fields',
-    'Better Layout',
-    'Better Hierarchy',
-    'Better Readability',
-    'Less Scrolling'
-  ]
-
-  const changes = generatedUI?.recommendations || [
-    'Reduced Fields',
-    'Added Progress Bar',
-    'Simplified Layout',
-    'Better Typography',
-    'Better Contrast',
-    'Responsive'
-  ]
-
-  const impactData = [
-    { label: 'Task Success', value: `+${generatedUI?.estimatedImpact?.taskSuccess || 27}%`, color: '#22C55E' },
-    { label: 'Completion Time', value: `${generatedUI?.estimatedImpact?.completionTime || -32}%`, color: '#3B82F6' },
-    { label: 'Error Rate', value: `${generatedUI?.estimatedImpact?.errorRate || -41}%`, color: '#EF4444' },
-    { label: 'Satisfaction', value: `+${generatedUI?.estimatedImpact?.satisfaction || 31}%`, color: '#7C5CFF' },
-  ]
-
   const wizardFields = [
-    { 
-      step: 1,
-      title: 'Personal Information',
-      fields: [
-        { label: 'Full Name', placeholder: 'Enter your full name', key: 'fullName' },
-        { label: 'Email Address', placeholder: 'Enter your email', key: 'email', type: 'email' }
-      ]
-    },
-    { 
-      step: 2,
-      title: 'Contact Details',
-      fields: [
-        { label: 'Phone Number', placeholder: 'Enter your phone', key: 'phone', type: 'tel' },
-        { label: 'PAN Number', placeholder: 'Enter PAN', key: 'pan' }
-      ]
-    },
-    { 
-      step: 3,
-      title: 'Financial Information',
-      fields: [
-        { label: 'Annual Income', placeholder: 'Enter income', key: 'income', type: 'number' },
-        { label: 'Investments', placeholder: 'Enter investments', key: 'investments', type: 'number' }
-      ]
-    }
+    { step: 1, title: 'Personal Information', fields: [
+      { label: 'Full Name', placeholder: 'Enter your full name', key: 'fullName' },
+      { label: 'Email Address', placeholder: 'Enter your email', key: 'email', type: 'email' }
+    ]},
+    { step: 2, title: 'Contact Details', fields: [
+      { label: 'Phone Number', placeholder: 'Enter your phone', key: 'phone', type: 'tel' },
+      { label: 'PAN Number', placeholder: 'Enter PAN', key: 'pan' }
+    ]},
+    { step: 3, title: 'Financial Information', fields: [
+      { label: 'Annual Income', placeholder: 'Enter income', key: 'income', type: 'number' },
+      { label: 'Investments', placeholder: 'Enter investments', key: 'investments', type: 'number' }
+    ]}
   ]
 
-  const recentData = allGenerated.slice(0, 5).map(item => ({
-    id: item._id?.slice(-6) || 'UI001',
-    page: item.page || 'Tax Form',
-    before: item.originalScore || 72,
-    after: item.optimizedScore || 38,
-    status: item.status || 'Generated'
-  }))
+  // Get current step fields
+  const currentStepData = wizardFields[currentStep - 1]
 
-  if (recentData.length === 0) {
-    recentData.push(
-      { id: 'UI035', page: 'Tax Form', before: 72, after: 38, status: 'Applied' },
-      { id: 'UI034', page: 'Registration', before: 85, after: 28, status: 'Applied' },
-      { id: 'UI033', page: 'Checkout', before: 68, after: 35, status: 'Pending' },
-      { id: 'UI032', page: 'Dashboard', before: 54, after: 24, status: 'Applied' },
-      { id: 'UI031', page: 'Profile Setup', before: 78, after: 30, status: 'Pending' }
-    )
-  }
+  // Calculate total from breakdown
+  const totalScore = generatedUI?.originalScore || 72
+  const optimizedScore = generatedUI?.optimizedScore || 38
+  const reduction = totalScore - optimizedScore
 
   if (loading) {
     return (
@@ -264,9 +216,6 @@ const GeneratedUI = () => {
     )
   }
 
-  // Get current step fields
-  const currentStepData = wizardFields[currentStep - 1]
-
   return (
     <div className="generated-page">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -277,8 +226,12 @@ const GeneratedUI = () => {
             <h1 className="generated-title">Generated UI</h1>
             <p className="generated-subtitle">View and manage AI-generated user interfaces.</p>
           </div>
-          <button className="btn-primary generated-generate-btn" onClick={() => navigate('/ai')}>
-            ✨ Generate New UI
+          <button 
+            className="btn-primary generated-generate-btn" 
+            onClick={handleGenerateNewUI}
+            disabled={isGenerating}
+          >
+            {isGenerating ? '⏳ Generating...' : '✨ Generate New UI'}
           </button>
         </div>
 
@@ -331,13 +284,19 @@ const GeneratedUI = () => {
               <div className="generated-compare-bottom">
                 <div className="generated-issues">
                   <span className="generated-issues-title">Issues</span>
-                  {originalIssues.map((issue, index) => (
+                  {generatedUI?.reasons?.map((issue, index) => (
                     <div key={index} className="generated-issue-item">❌ {issue}</div>
-                  ))}
+                  )) || (
+                    <>
+                      <div className="generated-issue-item">❌ Too many fields</div>
+                      <div className="generated-issue-item">❌ Long scrolling</div>
+                      <div className="generated-issue-item">❌ High Cognitive Load</div>
+                    </>
+                  )}
                 </div>
                 <div className="generated-friction-score">
                   <span className="generated-friction-label">Friction Score</span>
-                  <span className="generated-friction-value high">{generatedUI?.originalScore || 72}/100</span>
+                  <span className="generated-friction-value high">{totalScore}/100</span>
                 </div>
               </div>
             </div>
@@ -423,14 +382,20 @@ const GeneratedUI = () => {
               <div className="generated-compare-bottom">
                 <div className="generated-improvements">
                   <span className="generated-improvements-title">Improvements</span>
-                  {aiImprovements.slice(0, 5).map((improvement, index) => (
+                  {generatedUI?.recommendations?.slice(0, 5).map((improvement, index) => (
                     <div key={index} className="generated-improvement-item">✅ {improvement}</div>
-                  ))}
+                  )) || (
+                    <>
+                      <div className="generated-improvement-item">✅ Reduced Fields</div>
+                      <div className="generated-improvement-item">✅ Better Layout</div>
+                      <div className="generated-improvement-item">✅ Better Hierarchy</div>
+                    </>
+                  )}
                 </div>
                 <div className="generated-friction-score">
                   <span className="generated-friction-label">Friction Score</span>
-                  <span className="generated-friction-value low">{generatedUI?.optimizedScore || 38}/100</span>
-                  <span className="generated-friction-badge low">↓ Reduced</span>
+                  <span className="generated-friction-value low">{optimizedScore}/100</span>
+                  <span className="generated-friction-badge low">↓ {reduction}% Reduced</span>
                 </div>
               </div>
             </div>
@@ -454,7 +419,7 @@ const GeneratedUI = () => {
               <div className="generated-detail-item">
                 <span className="generated-detail-label">Generated On</span>
                 <span className="generated-detail-value">
-                  {generatedUI?.createdAt ? new Date(generatedUI.createdAt).toLocaleDateString() : 'May 16, 2026'}
+                  {generatedUI?.createdAt ? new Date(generatedUI.createdAt).toLocaleDateString() : 'Today'}
                 </span>
               </div>
               <div className="generated-detail-item">
@@ -482,18 +447,29 @@ const GeneratedUI = () => {
 
           <div className="generated-changes-card glass-card">
             <h3 className="generated-card-title">Changes Implemented</h3>
-            {changes.slice(0, 6).map((change, index) => (
+            {generatedUI?.recommendations?.slice(0, 6).map((change, index) => (
               <div key={index} className="generated-change-item">
                 <span className="generated-change-icon">✔</span>
                 <span className="generated-change-text">{change}</span>
               </div>
-            ))}
+            )) || (
+              <>
+                <div className="generated-change-item"><span className="generated-change-icon">✔</span><span className="generated-change-text">Reduced Fields</span></div>
+                <div className="generated-change-item"><span className="generated-change-icon">✔</span><span className="generated-change-text">Added Progress Bar</span></div>
+                <div className="generated-change-item"><span className="generated-change-icon">✔</span><span className="generated-change-text">Simplified Layout</span></div>
+              </>
+            )}
           </div>
 
           <div className="generated-impact-card glass-card">
             <h3 className="generated-card-title">Estimated Impact</h3>
             <div className="generated-impact-grid">
-              {impactData.map((item, index) => (
+              {[
+                { label: 'Task Success', value: `+${generatedUI?.estimatedImpact?.taskSuccess || 27}%`, color: '#22C55E' },
+                { label: 'Completion Time', value: `${generatedUI?.estimatedImpact?.completionTime || -32}%`, color: '#3B82F6' },
+                { label: 'Error Rate', value: `${generatedUI?.estimatedImpact?.errorRate || -41}%`, color: '#EF4444' },
+                { label: 'Satisfaction', value: `+${generatedUI?.estimatedImpact?.satisfaction || 31}%`, color: '#7C5CFF' }
+              ].map((item, index) => (
                 <div key={index} className="generated-impact-item">
                   <span className="generated-impact-value" style={{ color: item.color }}>{item.value}</span>
                   <span className="generated-impact-label">{item.label}</span>
@@ -519,20 +495,20 @@ const GeneratedUI = () => {
               </tr>
             </thead>
             <tbody>
-              {recentData.map((item, index) => (
+              {allGenerated.slice(0, 5).map((item, index) => (
                 <tr key={index}>
-                  <td className="generated-table-id">{item.id}</td>
-                  <td>{item.page}</td>
-                  <td>{new Date().toLocaleDateString()}</td>
+                  <td className="generated-table-id">{item._id?.slice(-6) || 'UI001'}</td>
+                  <td>{item.page || 'Tax Form'}</td>
+                  <td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Today'}</td>
                   <td>
-                    <span className="generated-table-badge high">{item.before}</span>
+                    <span className="generated-table-badge high">{item.originalScore || 72}</span>
                   </td>
                   <td>
-                    <span className="generated-table-badge low">{item.after}</span>
+                    <span className="generated-table-badge low">{item.optimizedScore || 38}</span>
                   </td>
                   <td>
-                    <span className={`generated-table-status ${item.status === 'Applied' ? 'applied' : 'pending'}`}>
-                      {item.status}
+                    <span className={`generated-table-status ${item.status === 'applied' ? 'applied' : 'pending'}`}>
+                      {item.status === 'applied' ? 'Applied' : 'Generated'}
                     </span>
                   </td>
                   <td>
