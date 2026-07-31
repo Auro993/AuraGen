@@ -1,5 +1,8 @@
+// frontend/src/pages/UserSessions.jsx
+
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 import Sidebar from '../components/Dashboard/Sidebar'
 import SessionModal from '../components/Dashboard/SessionModal'
 import api from '../services/api'
@@ -17,6 +20,7 @@ const UserSessions = () => {
   const [sessions, setSessions] = useState([])
   const [stats, setStats] = useState([])
   const [totalPages, setTotalPages] = useState(1)
+  const [dateRange, setDateRange] = useState('7d')
   const sessionsPerPage = 10
 
   useEffect(() => {
@@ -28,7 +32,7 @@ const UserSessions = () => {
 
   useEffect(() => {
     fetchSessionsData()
-  }, [currentPage, filterTab, searchQuery])
+  }, [currentPage, filterTab, searchQuery, dateRange])
 
   const fetchSessionsData = async () => {
     try {
@@ -38,7 +42,8 @@ const UserSessions = () => {
         page: currentPage,
         limit: sessionsPerPage,
         status: filterTab !== 'all' ? filterTab : undefined,
-        search: searchQuery || undefined
+        search: searchQuery || undefined,
+        range: dateRange
       }
       
       const res = await api.get('/sessions', { params })
@@ -118,6 +123,28 @@ const UserSessions = () => {
     }
   }
 
+  // ✅ Date Range Handler
+  const handleDateRange = () => {
+    const ranges = ['Today', 'Last 7 Days', 'Last 30 Days', 'Last 90 Days']
+    const currentIndex = ranges.indexOf(dateRange)
+    const nextIndex = (currentIndex + 1) % ranges.length
+    const newRange = ranges[nextIndex]
+    setDateRange(newRange)
+    toast.success(`📅 Filter: ${newRange}`)
+  }
+
+  // ✅ User Filter Handler
+  const handleUserFilter = () => {
+    toast.success('👥 Opening user filter...')
+    // You can implement a dropdown or modal here
+  }
+
+  // ✅ Export Handler
+  const handleExport = () => {
+    toast.success('📥 Exporting sessions data...')
+    // You can implement CSV/PDF export here
+  }
+
   const getFrictionBadge = (score) => {
     if (score > 70) return { label: 'High', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' }
     if (score > 40) return { label: 'Medium', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)' }
@@ -165,29 +192,28 @@ const UserSessions = () => {
     <div className="user-sessions-page">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <main className="user-sessions-main">
+        {/* Header */}
         <div className="sessions-header">
           <div>
             <h1 className="sessions-title">User Sessions</h1>
             <p className="sessions-subtitle">View and analyze all user sessions and their interaction data.</p>
           </div>
           <div className="sessions-actions">
-            <button className="btn-secondary">📅 Date Range</button>
-            <button className="btn-secondary">👥 User Filter</button>
-            <button className="btn-primary">⬇ Export</button>
+            <button className="btn-secondary" onClick={handleDateRange}>
+              📅 {dateRange}
+            </button>
+            <button className="btn-secondary" onClick={handleUserFilter}>
+              👥 User Filter
+            </button>
+            <button className="btn-primary" onClick={handleExport}>
+              ⬇ Export
+            </button>
           </div>
         </div>
 
-        <div className="upgrade-card glass-card">
-          <div className="upgrade-content">
-            <div>
-              <span className="upgrade-icon">⭐</span>
-              <span className="upgrade-title">Upgraded to Pro</span>
-              <p className="upgrade-text">Unlock advanced insights and remove limits.</p>
-            </div>
-            <button className="btn-primary upgrade-btn">Upgrade Now</button>
-          </div>
-        </div>
+        {/* ✅ Upgrade Card REMOVED */}
 
+        {/* Stats Cards */}
         <div className="sessions-stats-grid">
           {stats.map((stat, index) => (
             <div key={index} className="sessions-stat-card glass-card" style={{ borderColor: stat.color }}>
@@ -203,6 +229,7 @@ const UserSessions = () => {
           ))}
         </div>
 
+        {/* Controls */}
         <div className="sessions-controls">
           <div className="sessions-tabs">
             <button 
@@ -243,6 +270,7 @@ const UserSessions = () => {
           </div>
         </div>
 
+        {/* Table */}
         <div className="sessions-table-container glass-card">
           <table className="sessions-table">
             <thead>
@@ -258,49 +286,62 @@ const UserSessions = () => {
               </tr>
             </thead>
             <tbody>
-              {sessions.map((session) => {
-                const frictionBadge = getFrictionBadge(session.friction)
-                const statusBadge = getStatusBadge(session.status)
-                return (
-                  <tr key={session.id}>
-                    <td className="session-id">{session.id}</td>
-                    <td>
-                      <div className="session-user">
-                        <span className="session-avatar">{session.user?.charAt(0) || 'U'}</span>
-                        <span>{session.user}</span>
-                      </div>
-                    </td>
-                    <td>{session.page}</td>
-                    <td>
-                      <span className="session-friction-badge" style={{ 
-                        background: frictionBadge.bg,
-                        color: frictionBadge.color
-                      }}>
-                        {session.friction}% • {frictionBadge.label}
-                      </span>
-                    </td>
-                    <td>{session.duration}</td>
-                    <td>{session.startTime}</td>
-                    <td>
-                      <span className="session-status-badge" style={{ 
-                        background: statusBadge.bg,
-                        color: statusBadge.color
-                      }}>
-                        {session.status}
-                      </span>
-                    </td>
-                    <td>
-                      <button className="session-action-btn" onClick={() => handleViewSession(session)}>
-                        👁
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
+              {sessions.length > 0 ? (
+                sessions.map((session) => {
+                  const frictionBadge = getFrictionBadge(session.friction)
+                  const statusBadge = getStatusBadge(session.status)
+                  return (
+                    <tr key={session.id}>
+                      <td className="session-id">{session.id}</td>
+                      <td>
+                        <div className="session-user">
+                          <span className="session-avatar">{session.user?.charAt(0) || 'U'}</span>
+                          <span>{session.user}</span>
+                        </div>
+                      </td>
+                      <td>{session.page}</td>
+                      <td>
+                        <span className="session-friction-badge" style={{ 
+                          background: frictionBadge.bg,
+                          color: frictionBadge.color
+                        }}>
+                          {session.friction}% • {frictionBadge.label}
+                        </span>
+                      </td>
+                      <td>{session.duration}</td>
+                      <td>{session.startTime}</td>
+                      <td>
+                        <span className="session-status-badge" style={{ 
+                          background: statusBadge.bg,
+                          color: statusBadge.color
+                        }}>
+                          {session.status}
+                        </span>
+                      </td>
+                      <td>
+                        <button className="session-action-btn" onClick={() => handleViewSession(session)}>
+                          👁
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })
+              ) : (
+                <tr>
+                  <td colSpan="8" className="no-sessions">
+                    <div className="no-sessions-content">
+                      <span className="no-sessions-icon">📭</span>
+                      <p>No sessions found</p>
+                      <span className="no-sessions-hint">Try adjusting your filters or search query</span>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
+        {/* Pagination */}
         <div className="sessions-pagination">
           <button 
             className="pagination-btn"
@@ -350,6 +391,7 @@ const UserSessions = () => {
           </button>
         </div>
 
+        {/* Session Modal */}
         <SessionModal 
           session={selectedSession}
           isOpen={showModal}
