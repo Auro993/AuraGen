@@ -1,0 +1,17 @@
+// frontend/src/components/Animated/AnimatedCard.jsx
+
+import { motion } from 'framer-motion'
+
+export const AnimatedCard = ({ children, delay = 0, className = '' }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: delay }}
+      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}

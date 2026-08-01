@@ -1,6 +1,9 @@
+// frontend/src/App.jsx
+
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import { AnimatePresence, motion } from 'framer-motion'
 import Home from './pages/Home'
 import Features from './pages/Features'
 import Architecture from './pages/Architecture'
@@ -26,7 +29,22 @@ import './styles/variables.css'
 import './styles/animations.css'
 import './styles/utilities.css'
 
+// Page transition animation
+const pageVariants = {
+  initial: { opacity: 0, x: -20 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: 20 }
+}
+
+const pageTransition = {
+  type: 'tween',
+  ease: 'easeInOut',
+  duration: 0.3
+}
+
 function App() {
+  const location = useLocation()
+
   return (
     <>
       <Toaster 
@@ -58,28 +76,291 @@ function App() {
           },
         }}
       />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/features" element={<Features />} />
-        <Route path="/architecture" element={<Architecture />} />
-        <Route path="/demo" element={<Demo />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/user-sessions" element={<UserSessions />} />
-        <Route path="/behavior" element={<Behaviour />} />
-        <Route path="/friction" element={<FrictionEngine />} />
-        <Route path="/ai" element={<AIGenerator />} />
-        <Route path="/generated" element={<GeneratedUI />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/demo-portal" element={<DemoPortal />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/docs" element={<HelpDocs />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route 
+            path="/" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Home />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/features" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Features />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/architecture" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Architecture />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/demo" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Demo />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/dashboard" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Dashboard />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/analytics" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Analytics />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/user-sessions" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <UserSessions />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/behavior" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Behaviour />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/friction" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <FrictionEngine />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/ai" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <AIGenerator />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/generated" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <GeneratedUI />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/history" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <History />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/demo-portal" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <DemoPortal />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Settings />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/docs" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <HelpDocs />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/pricing" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Pricing />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/about" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <About />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/contact" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Contact />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/login" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Login />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="*" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <NotFound />
+              </motion.div>
+            } 
+          />
+        </Routes>
+      </AnimatePresence>
     </>
   )
 }

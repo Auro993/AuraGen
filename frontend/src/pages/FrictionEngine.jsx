@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
+import { motion, AnimatePresence } from 'framer-motion'
 import Sidebar from '../components/Dashboard/Sidebar'
 import { Line } from 'react-chartjs-2'
 import {
@@ -16,6 +17,7 @@ import {
   Legend,
   Filler
 } from 'chart.js'
+import { exportFrictionReport } from '../services/pdfExport'
 import api from '../services/api'
 import './FrictionEngine.css'
 
@@ -30,6 +32,22 @@ ChartJS.register(
   Filler
 )
 
+// Animation variants
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 }
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.4 }
+  })
+}
+
 const FrictionEngine = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('friction')
@@ -42,6 +60,7 @@ const FrictionEngine = () => {
   const [events, setEvents] = useState([])
   const [recommendation, setRecommendation] = useState({})
   const [dataSource, setDataSource] = useState('loading')
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -193,6 +212,27 @@ const FrictionEngine = () => {
     toast.success('🔄 Refreshing data...')
   }
 
+  // ✅ PDF Export Handler
+  const handleExportReport = async () => {
+    try {
+      setIsExporting(true)
+      const data = {
+        totalScore: frictionScore,
+        factors: frictionFactors,
+        breakdown: scoreBreakdown,
+        events: events,
+        timestamp: new Date().toISOString()
+      }
+      await exportFrictionReport(data, 'Friction_Engine_Report')
+      toast.success('📄 Report exported successfully!')
+    } catch (error) {
+      console.error('Export error:', error)
+      toast.error('Failed to export report')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   const chartConfig = {
     labels: chartData?.labels || ['No Data'],
     datasets: [{
@@ -264,21 +304,37 @@ const FrictionEngine = () => {
 
   if (loading) {
     return (
-      <div className="friction-page">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="friction-page"
+      >
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <main className="friction-main">
           <div className="loading-spinner">Loading friction data...</div>
         </main>
-      </div>
+      </motion.div>
     )
   }
 
   return (
-    <div className="friction-page">
+    <motion.div
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageVariants}
+      transition={{ duration: 0.5 }}
+      className="friction-page"
+    >
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <main className="friction-main">
         {/* Header */}
-        <div className="friction-header">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="friction-header"
+        >
           <div>
             <h1 className="friction-title">Friction Engine</h1>
             <p className="friction-subtitle">
@@ -289,14 +345,33 @@ const FrictionEngine = () => {
           </div>
           <div className="friction-actions">
             <button className="btn-secondary" onClick={handleRefresh}>🔄 Refresh</button>
-            <button className="btn-primary" onClick={handleGenerateUI}>🚀 Generate UI</button>
+            <button className="btn-secondary" onClick={handleGenerateUI}>🚀 Generate UI</button>
+            <button 
+              className="btn-primary" 
+              onClick={handleExportReport}
+              disabled={isExporting}
+            >
+              {isExporting ? '⏳ Exporting...' : '📄 Export Report'}
+            </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* KPI Cards */}
-        <div className="friction-kpi-grid">
+        <motion.div 
+          className="friction-kpi-grid"
+          initial="hidden"
+          animate="visible"
+          variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+        >
           {kpiData.map((kpi, index) => (
-            <div key={index} className="friction-kpi-card glass-card" style={{ borderColor: kpi.color }}>
+            <motion.div
+              key={index}
+              custom={index}
+              variants={cardVariants}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className="friction-kpi-card glass-card"
+              style={{ borderColor: kpi.color }}
+            >
               <div className="friction-kpi-header">
                 <span className="friction-kpi-icon">{kpi.icon}</span>
                 <span className={`friction-kpi-change ${kpi.positive ? 'positive' : 'negative'}`}>
@@ -305,12 +380,17 @@ const FrictionEngine = () => {
               </div>
               <span className="friction-kpi-value">{kpi.value}</span>
               <span className="friction-kpi-label">{kpi.label}</span>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Two Column: Friction Trend & Current Friction Meter */}
-        <div className="friction-two-col">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="friction-two-col"
+        >
           <div className="friction-trend-card glass-card">
             <h3 className="friction-card-title">Friction Score Over Time</h3>
             <div className="friction-chart-wrapper">
@@ -331,19 +411,26 @@ const FrictionEngine = () => {
                       strokeWidth="20"
                       strokeLinecap="round"
                     />
-                    <path
+                    <motion.path
                       d="M 20 100 A 80 80 0 0 1 180 100"
                       fill="none"
                       stroke={getFrictionColor(frictionScore)}
                       strokeWidth="20"
                       strokeLinecap="round"
-                      strokeDasharray={`${(frictionScore / 100) * 251.2} 251.2`}
-                      strokeDashoffset="0"
-                      style={{ transition: 'stroke-dasharray 1s ease' }}
+                      initial={{ strokeDasharray: '0 251.2' }}
+                      animate={{ strokeDasharray: `${(frictionScore / 100) * 251.2} 251.2` }}
+                      transition={{ duration: 1, ease: 'easeOut' }}
                     />
                   </svg>
                   <div className="friction-gauge-center">
-                    <span className="friction-gauge-value">{frictionScore}</span>
+                    <motion.span 
+                      className="friction-gauge-value"
+                      initial={{ scale: 0.5 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                      {frictionScore}
+                    </motion.span>
                     <span className="friction-gauge-label">/100</span>
                   </div>
                 </div>
@@ -370,26 +457,40 @@ const FrictionEngine = () => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Two Column: Friction Factors & Score Breakdown */}
-        <div className="friction-two-col">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="friction-two-col"
+        >
           <div className="friction-factors-card glass-card">
             <h3 className="friction-card-title">Friction Factors</h3>
             {frictionFactors.map((factor, index) => (
-              <div key={index} className="friction-factor-item">
+              <motion.div 
+                key={index} 
+                className="friction-factor-item"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + index * 0.1 }}
+              >
                 <div className="friction-factor-header">
                   <span className="friction-factor-label">{factor.label}</span>
                   <span className="friction-factor-value">{factor.value}%</span>
                 </div>
                 <div className="friction-factor-bar-track">
-                  <div 
+                  <motion.div 
                     className="friction-factor-bar-fill"
                     style={{ width: `${factor.value}%`, background: factor.color }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${factor.value}%` }}
+                    transition={{ duration: 0.8, delay: 0.7 + index * 0.1 }}
                   />
                 </div>
                 <span className="friction-factor-detail">{factor.detail}</span>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -397,7 +498,13 @@ const FrictionEngine = () => {
             <h3 className="friction-card-title">📊 Friction Score Breakdown</h3>
             <div className="friction-breakdown-list">
               {scoreBreakdown.map((item, index) => (
-                <div key={index} className="friction-breakdown-item">
+                <motion.div 
+                  key={index} 
+                  className="friction-breakdown-item"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 + index * 0.1 }}
+                >
                   <div className="friction-breakdown-left">
                     <span className="friction-breakdown-icon">{item.icon}</span>
                     <div className="friction-breakdown-info">
@@ -413,7 +520,7 @@ const FrictionEngine = () => {
                       {item.contribution}
                     </span>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
             <div className="friction-breakdown-total">
@@ -423,10 +530,15 @@ const FrictionEngine = () => {
               </span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Recent Friction Events */}
-        <div className="friction-events-card glass-card">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          className="friction-events-card glass-card"
+        >
           <h3 className="friction-card-title">Recent Friction Events</h3>
           <table className="friction-events-table">
             <thead>
@@ -441,7 +553,12 @@ const FrictionEngine = () => {
             </thead>
             <tbody>
               {events.map((event, index) => (
-                <tr key={index}>
+                <motion.tr 
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.1 + index * 0.1 }}
+                >
                   <td>{event.time}</td>
                   <td>{event.user}</td>
                   <td>{event.page}</td>
@@ -458,14 +575,19 @@ const FrictionEngine = () => {
                       {event.severity}
                     </span>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </motion.div>
 
         {/* AI Recommendation */}
-        <div className="friction-recommendation-card glass-card">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.3 }}
+          className="friction-recommendation-card glass-card"
+        >
           <div className="friction-recommendation-header">
             <span className="friction-recommendation-icon">💡</span>
             <h3 className="friction-recommendation-title">AI Insight & Recommendation</h3>
@@ -475,15 +597,17 @@ const FrictionEngine = () => {
             <span className="friction-recommendation-label">Recommended Action:</span>
             <span className="friction-recommendation-text">{recommendation.recommendation}</span>
           </div>
-          <button 
+          <motion.button 
             className="btn-primary friction-generate-btn"
             onClick={handleGenerateUI}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             🚀 Generate Optimized UI
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </main>
-    </div>
+    </motion.div>
   )
 }
 
