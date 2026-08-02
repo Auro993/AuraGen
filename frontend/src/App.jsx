@@ -4,10 +4,19 @@ import React from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AnimatePresence, motion } from 'framer-motion'
+
+// Public Pages
 import Home from './pages/Home'
 import Features from './pages/Features'
 import Architecture from './pages/Architecture'
 import Demo from './pages/Demo'
+import Pricing from './pages/Pricing'
+import About from './pages/About'
+import Contact from './pages/Contact'
+import Login from './pages/Login'
+import NotFound from './pages/NotFound'
+
+// Dashboard Pages
 import Dashboard from './pages/Dashboard'
 import Analytics from './pages/Analytics'
 import UserSessions from './pages/UserSessions'
@@ -19,21 +28,39 @@ import History from './pages/History'
 import DemoPortal from './pages/DemoPortal'
 import Settings from './pages/Settings'
 import HelpDocs from './pages/HelpDocs'
-import Pricing from './pages/Pricing'
-import About from './pages/About'
-import Contact from './pages/Contact'
-import Login from './pages/Login'
-import NotFound from './pages/NotFound'
+import Profile from './pages/Profile'  // ✅ NEW: Profile page import
+
+// Styles
 import './styles/global.css'
 import './styles/variables.css'
 import './styles/animations.css'
 import './styles/utilities.css'
 
-// Page transition animation
+// Page transition animation variants
 const pageVariants = {
-  initial: { opacity: 0, x: -20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: 20 }
+  initial: { 
+    opacity: 0, 
+    x: -20,
+    scale: 0.98
+  },
+  animate: { 
+    opacity: 1, 
+    x: 0,
+    scale: 1,
+    transition: {
+      duration: 0.4,
+      ease: 'easeOut'
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    x: 20,
+    scale: 0.98,
+    transition: {
+      duration: 0.3,
+      ease: 'easeIn'
+    }
+  }
 }
 
 const pageTransition = {
@@ -79,6 +106,7 @@ function App() {
       
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
+          {/* ============ PUBLIC ROUTES ============ */}
           <Route 
             path="/" 
             element={
@@ -135,6 +163,64 @@ function App() {
               </motion.div>
             } 
           />
+          <Route 
+            path="/pricing" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Pricing />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/about" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <About />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/contact" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Contact />
+              </motion.div>
+            } 
+          />
+          <Route 
+            path="/login" 
+            element={
+              <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+                transition={pageTransition}
+              >
+                <Login />
+              </motion.div>
+            } 
+          />
+
+          {/* ============ DASHBOARD ROUTES (Protected) ============ */}
           <Route 
             path="/dashboard" 
             element={
@@ -289,8 +375,10 @@ function App() {
               </motion.div>
             } 
           />
+          
+          {/* ✅ NEW: Profile Page Route */}
           <Route 
-            path="/pricing" 
+            path="/profile" 
             element={
               <motion.div
                 initial="initial"
@@ -299,52 +387,12 @@ function App() {
                 variants={pageVariants}
                 transition={pageTransition}
               >
-                <Pricing />
+                <Profile />
               </motion.div>
             } 
           />
-          <Route 
-            path="/about" 
-            element={
-              <motion.div
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                variants={pageVariants}
-                transition={pageTransition}
-              >
-                <About />
-              </motion.div>
-            } 
-          />
-          <Route 
-            path="/contact" 
-            element={
-              <motion.div
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                variants={pageVariants}
-                transition={pageTransition}
-              >
-                <Contact />
-              </motion.div>
-            } 
-          />
-          <Route 
-            path="/login" 
-            element={
-              <motion.div
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                variants={pageVariants}
-                transition={pageTransition}
-              >
-                <Login />
-              </motion.div>
-            } 
-          />
+
+          {/* ============ 404 NOT FOUND ============ */}
           <Route 
             path="*" 
             element={

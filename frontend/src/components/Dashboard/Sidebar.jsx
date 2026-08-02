@@ -13,6 +13,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { id: 'ai', label: 'AI Generator', icon: '🤖', path: '/ai' },
     { id: 'generated', label: 'Generated UI', icon: '🪄', path: '/generated' },
     { id: 'history', label: 'History', icon: '🕒', path: '/history' },
+     { icon: '👤', label: 'Profile', path: '/profile' },
     { id: 'settings', label: 'Settings', icon: '⚙️', path: '/settings' },
     { id: 'docs', label: 'Help & Docs', icon: '❓', path: '/docs' },
   ]
